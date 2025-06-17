@@ -4,6 +4,9 @@ This repository defines reoccurring ci-jobs to be used by different repositories
 
 ### Example:
 
+Create a .github/workflows/EXAMPLE.yml file to use a workflow.
+The content of the file should be as followed:
+
 ```yaml
 name: install and build
 
