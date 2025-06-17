@@ -1,0 +1,67 @@
+name: Build Python Package
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+        default: "3.10"
+      use-uv:
+        required: false
+        type: boolean
+        default: false
+      install-requirements:
+        required: false
+        type: boolean
+        default: true
+      extra-requirements:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  install:
+    uses: "RWTH-EBC/ci_templates/.github/workflows/install.yml@main"
+    with:
+      python-version: ${{ inputs.python-version }}
+      use-uv: ${{ inputs.use-uv }}
+      install-requirements: ${{ inputs.install-requirements }}
+      extra-requirements: ${{ inputs.extra-requirements }}
+
+  build-package:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install build and anybadge
+        run: |
+          pip install --upgrade build anybadge
+
+      - name: Build Package
+        run: python -m build
+
+      - name: Install Built Package
+        run: |
+          FILE_NAME=$(ls dist/*.tar.gz)
+          pip install "$FILE_NAME"
+
+      - name: Create build directory
+        run: mkdir -p ${{ github.ref_name }}/build
+
+      - name: Generate Badge
+        run: anybadge --value="passing" --file=${{ github.ref_name }}/build/build.svg --label build
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: ${{ github.ref_name }}/build
+          retention-days: 1
