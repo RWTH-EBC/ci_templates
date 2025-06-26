@@ -1,0 +1,84 @@
+name: Ruff Lint
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_VERSION:
+        required: true
+        type: string
+      PYTHON_PACKAGE_NAME:
+        required: false
+        type: string
+        default: ""
+    outputs:
+      ISSUES_COUNT:
+        description: "Number of issues found by Ruff"
+        value: ${{ jobs.ruff.outputs.issues }}
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+
+    outputs:
+      issues: ${{ steps.extract-issues.outputs.count }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
+
+      - name: Upgrade Pip
+        run: pip install --upgrade pip
+
+      - name: Install dependencies
+        run: pip install ruff==0.1.6 anybadge
+
+      - name: Determine ruff input
+        id: ruff-input
+        run: |
+          INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
+          if [ -n "$INPUT" ]; then
+            echo "Using user-defined source dir: $INPUT"
+          elif [ -d "$(basename $GITHUB_REPOSITORY)" ]; then
+            INPUT=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+            echo "Using repo name as module name: $INPUT"
+          else
+            INPUT="."
+            echo "Checking all python files"
+          fi
+          echo "input=$INPUT" >> $GITHUB_OUTPUT
+
+      - name: Run ruff check
+        run: |
+          mkdir -p ruff
+          ruff check "${{ steps.ruff-input.outputs.input }}" --output-format=text --exit-zero | tee ruff/ruff.txt
+
+      - name: Count number of issues
+        id: extract-issues
+        run: |
+          COUNT=$(grep -cE '^[^[:space:]]+:[0-9]+:[0-9]+' ruff/ruff.txt || echo 0)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          echo "Found $COUNT issues"
+
+      - name: Generate badge
+        run: |
+          anybadge --label=ruff --value=${{ steps.extract-issues.outputs.count }} \
+          --file=ruff/ruff.svg \
+          0=green 10=yellow 50=orange 100=red
+
+      - name: Generate HTML report
+        run: |
+          echo "<html><body><pre>" > ruff/ruff.html
+          cat ruff/ruff.txt >> ruff/ruff.html
+          echo "</pre></body></html>" >> ruff/ruff.html
+
+      - name: Upload Ruff report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ruff-report
+          path: ruff
+          retention-days: 1
