@@ -1,0 +1,74 @@
+on:
+  workflow_call:
+    inputs:
+      USE_PYLINT:
+        required: false
+        type: boolean
+        default: false
+      USE_RUFF:
+        required: false
+        type: boolean
+        default: false
+      BUILD_PACKAGE:
+        required: false
+        type: boolean
+        default: false
+      GENERATE_DOCUMENTATION:
+        required: false
+        type: boolean
+        default: false
+      PYTHON_VERSION:
+        required: true
+        type: string
+        default: "3.10"
+      PYTHON_PACKAGE_NAME:
+        required: false
+        type: string
+        default: ""
+      USE_UV:
+        required: false
+        type: boolean
+        default: false
+      INSTALL_REQUIREMENTS:
+        required: false
+        type: boolean
+        default: true
+      EXTRA_REQUIREMENTS:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  build:
+    if: ${{inputs.BUILD_PACKAGE}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/build.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+
+  pylint:
+    if: ${{inputs.USE_PYLINT}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/pylint.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+
+  ruff:
+    if: ${{inputs.USE_RUFF}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/ruff.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+
+  sphinx_doc:
+    if: ${{inputs.GENERATE_DOCUMENTATION}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/sphinx_doc.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
