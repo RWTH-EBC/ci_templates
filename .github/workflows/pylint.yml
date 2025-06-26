@@ -1,0 +1,83 @@
+name: Pylint Code Quality
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_VERSION:
+        required: true
+        type: string
+        default: "3.10"
+      PYTHON_PACKAGE_NAME:
+        required: false
+        type: string
+    outputs:
+      PYLINT_SCORE:
+        description: "Pylint score"
+        value: ${{ jobs.pylint.outputs.score }}
+
+jobs:
+  pylint:
+    runs-on: ubuntu-latest
+
+    outputs:
+      score: ${{ steps.extract-score.outputs.score }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+         python-version: ${{ inputs.PYTHON_VERSION }}
+
+      - name: Upgrade Pip
+        run: pip install --upgrade pip
+
+      - name: Install dependencies
+        run: pip install pylint==2.17.7 pylint-json2html anybadge
+
+      - name: Determine pylint input
+        id: pylint-input
+        run: |
+          INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
+          if [ -n "$INPUT" ]; then
+            echo "Using user-defined source dir: $INPUT"
+          elif [ -d "$(basename $GITHUB_REPOSITORY)" ]; then
+            INPUT=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+            echo "Using repo name as module name: $INPUT"
+          else
+            INPUT="**/*.py"
+            echo "Checking all python files"
+          fi
+          echo "input=$INPUT" >> $GITHUB_OUTPUT
+
+      - name: Run pylint (text output)
+        run: |
+          mkdir -p pylint
+          pylint --output-format=text "${{ steps.pylint-input.outputs.input }}" --exit-zero | tee pylint/pylint.txt
+
+      - name: Extract pylint score
+        id: extract-score
+        run: |
+          SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint/pylint.txt)
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Score is $SCORE"
+
+      - name: Generate badge
+        run: |
+          anybadge --value=${{ steps.extract-score.outputs.score }} --file=pylint/pylint.svg pylint
+
+      - name: Run pylint (JSON for HTML report)
+        run: |
+          pylint --output-format=jsonextended --load-plugins=pylint_json2html --exit-zero "${{ steps.pylint-input.outputs.input }}" | tee pylint/pylint.json
+
+      - name: Generate HTML report
+        run: pylint-json2html -f jsonextended -o pylint/pylint.html < pylint/pylint.json
+
+      - name: Upload pylint artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pylint-report
+          path: pylint
+          retention-days: 1
