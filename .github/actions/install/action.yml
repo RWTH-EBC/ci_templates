@@ -1,0 +1,56 @@
+name: Install Local Repository
+description: Installs requirements and the local Python package using pip or uv.
+inputs:
+  use-uv:
+    description: Use uv instead of pip
+    required: false
+    default: "false"
+  install-requirements:
+    description: Whether to install requirements.txt
+    required: false
+    default: "true"
+  extra-requirements:
+    description: Extra pip install flags (e.g. "[dev]")
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upgrade pip
+      run: pip install --upgrade pip
+      shell: bash
+
+    - name: Determine install method
+      id: install-method
+      run: |
+        if [[ "${{ inputs.use-uv }}" == "true" ]]; then
+          echo "Using uv"
+          pip install uv
+          echo "INSTALL_CMD=uv pip install --system" >> $GITHUB_ENV
+        else
+          echo "Using pip"
+          echo "INSTALL_CMD=pip install" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Install requirements.txt (if exists)
+      if: ${{ inputs.install-requirements == 'true' }}
+      run: |
+        if [ -f requirements.txt ]; then
+          echo "Installing requirements.txt"
+          $INSTALL_CMD -r requirements.txt
+        else
+          echo "No requirements.txt found"
+        fi
+      shell: bash
+
+    - name: Install local package (if setup.py or pyproject.toml exists)
+      run: |
+        if [ -f setup.py ] || [ -f pyproject.toml ]; then
+          echo "Installing local package"
+          $INSTALL_CMD -e .${{ inputs.extra-requirements }}
+        else
+          echo "No setup.py or pyproject.toml found"
+        fi
+      shell: bash
