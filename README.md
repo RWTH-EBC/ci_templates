@@ -16,7 +16,7 @@ on:
 
 jobs:
   ci:
-    uses: RWTH-EBC/ci_templates/.github/workflows/ci.yml@main
+    uses: RWTH-EBC/ci_templates/.github/workflows/ci_pipeline.yml@main
     with:
       PYTHON_VERSION: "3.11"
       USE_PYLINT: true
