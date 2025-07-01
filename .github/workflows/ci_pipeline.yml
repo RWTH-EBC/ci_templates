@@ -85,8 +85,8 @@ jobs:
       USE_UV: ${{inputs.USE_UV}}
       INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
       EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
-      TEST_ENGINE: ${{inputs.PYTHON_PACKAGE_NAME}}
-      TEST_PATH: ${{inputs.PYTHON_PACKAGE_NAME}}
+      TEST_ENGINE: ${{inputs.TEST_ENGINE}}
+      TEST_PATH: ${{inputs.TEST_PATH}}
 
   coverage_test:
     if: ${{inputs.EXECUTE_COVERAGE_TEST}}
@@ -97,9 +97,9 @@ jobs:
       INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
       EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
-      TEST_ENGINE: ${{inputs.PYTHON_PACKAGE_NAME}}
-      TEST_PATH: ${{inputs.PYTHON_PACKAGE_NAME}}
-      COVERAGE_TYPE: ${{inputs.PYTHON_PACKAGE_NAME}}
+      TEST_ENGINE: ${{inputs.TEST_ENGINE}}
+      TEST_PATH: ${{inputs.TEST_PATH}}
+      COVERAGE_TYPE: ${{inputs.COVERAGE_TYPE}}
 
   ruff:
     if: ${{inputs.USE_RUFF}}
