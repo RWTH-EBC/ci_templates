@@ -42,7 +42,7 @@ jobs:
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
-      - name: Install project
+      - name: Install Project and Requirements
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
           use-uv: ${{ inputs.USE_UV }}

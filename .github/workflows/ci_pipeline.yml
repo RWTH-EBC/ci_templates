@@ -44,6 +44,18 @@ on:
         required: false
         type: string
         default: ""
+      TEST_ENGINE:
+        required: false
+        type: string
+        default: "PYTEST"
+      TEST_PATH:
+        required: false
+        type: string
+        default: "tests"
+      COVERAGE_TYPE:
+        required: false
+        type: string
+        default: "default"
 
 jobs:
   build:
@@ -67,9 +79,14 @@ jobs:
     if: ${{inputs.COVERAGE_TEST}}
     uses: RWTH-EBC/ci_templates/.github/workflows/test-coverage.yml@main
     with:
-
-
-
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+      TEST_ENGINE: ${{inputs.PYTHON_PACKAGE_NAME}}
+      TEST_PATH: ${{inputs.PYTHON_PACKAGE_NAME}}
+      COVERAGE_TYPE: ${{inputs.PYTHON_PACKAGE_NAME}}
 
   ruff:
     if: ${{inputs.USE_RUFF}}
