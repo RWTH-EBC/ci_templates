@@ -1,0 +1,87 @@
+name: Multi-Python Tests
+
+on:
+  workflow_call:
+    inputs:
+      TEST_PATH:
+        required: false
+        type: string
+        default: "tests"
+      TEST_ENGINE:
+        required: false
+        type: string
+        default: "PYTEST"
+      PYTHON_VERSIONS:
+        required: false
+        type: string
+        default: '["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]'
+      INSTALL_REQUIREMENTS:
+        required: false
+        type: boolean
+        default: true
+      USE_UV:
+        required: false
+        type: boolean
+        default: false
+      EXTRA_REQUIREMENTS:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ${{ fromJson(inputs.PYTHON_VERSIONS) }}
+
+    steps:
+      - name: Skip test based on commit message
+        id: skip
+        run: |
+          SKIP_KEYWORDS="skip-all-tests skip-python${{ matrix.python-version | replace('.', '') }}"
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          for keyword in $SKIP_KEYWORDS; do
+            if [[ "${{ github.event.head_commit.message }}" =~ $keyword ]]; then
+              echo "Skip detected: $keyword"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Cancel skipped job
+        if: steps.skip.outputs.skip == 'true'
+        run: echo "Test skipped for Python ${{ matrix.python-version }}"
+
+      - name: Checkout code
+        if: steps.skip.outputs.skip == 'false'
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: steps.skip.outputs.skip == 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install project
+        if: steps.skip.outputs.skip == 'false'
+        uses: RWTH-EBC/ci_templates/.github/actions/install@main
+        with:
+          use-uv: ${{ inputs.USE_UV }}
+          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
+          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
+
+      - name: Install test dependencies
+        if: steps.skip.outputs.skip == 'false'
+        run: pip install pytest
+
+      - name: Run tests
+        if: steps.skip.outputs.skip == 'false'
+        run: |
+          if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
+            python -m pytest ${{ inputs.TEST_PATH }}
+          else
+            python -m unittest discover --verbose . "test_*.py"
+          fi
