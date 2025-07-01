@@ -1,0 +1,99 @@
+#NOT TESTED
+
+name: Release to PyPI
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_VERSION:
+        required: true
+        type: string
+        default: "3.10"
+      USE_UV:
+        required: false
+        type: boolean
+        default: false
+      INSTALL_REQUIREMENTS:
+        required: false
+        type: boolean
+        default: true
+      EXTRA_REQUIREMENTS:
+        required: false
+        type: string
+        default: ""
+      PYTHON_PACKAGE_NAME:
+        required: true
+        type: string
+      PYTHON_VERSION_NAME:
+        required: false
+        type: string
+        default: "__version__"
+      GIT_REPO:
+        required: true
+        type: string
+
+    secrets:
+      PYPI_USERNAME:
+        required: true
+      PYPI_PASSWORD:
+        required: true
+      GH_TOKEN:
+        required: false  # optional, required if gh release is used
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
+
+
+      - name: Install project
+        uses: RWTH-EBC/ci_templates/.github/actions/install@main
+        with:
+          use-uv: ${{ inputs.USE_UV }}
+          install-requirements: ${{inputs.INSTALL_REQUIREMENTS}}
+          extra-requirements: ${{inputs.EXTRA_REQUIREMENTS}}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gh
+          pip install --upgrade pip
+          pip install twine build
+
+
+      - name: Build Python package
+        run: python -m build
+
+      - name: Install built package
+        run: |
+          FILE=$(echo dist/*.tar.gz)
+          pip install "$FILE"
+
+      - name: Get version from Python module
+        id: version
+        run: |
+          VERSION=$(python -c "import ${{ inputs.PYTHON_PACKAGE_NAME }}; print(${{ inputs.PYTHON_PACKAGE_NAME }}.${{ inputs.PYTHON_VERSION_NAME }})")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        if: ${{ secrets.GH_TOKEN != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh release create v${{ steps.version.outputs.version }} --generate-notes || true
+
+      - name: Upload to PyPI
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: twine upload dist/*
