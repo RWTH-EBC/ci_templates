@@ -37,8 +37,8 @@ jobs:
         run: |
           PYTHON_VERSION="${{ matrix.python-version }}"
           PYTHON_VERSION_NO_DOT="${PYTHON_VERSION//./}"
-          echo "$PYTHON_VERSION_NO_DOT"
-          SKIP_KEYWORDS="skip-all-tests skip-python"${PYTHON_VERSION_NO_DOT}"
+          echo $PYTHON_VERSION_NO_DOT
+          SKIP_KEYWORDS="skip-all-tests skip-python$PYTHON_VERSION_NO_DOT
           echo "Commit message: ${{ github.event.head_commit.message }}"
           for keyword in $SKIP_KEYWORDS; do
             if [[ "${{ github.event.head_commit.message }}" =~ $keyword ]]; then
