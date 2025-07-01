@@ -11,10 +11,6 @@ on:
         required: false
         type: string
         default: "PYTEST"
-      PYTHON_VERSIONS:
-        required: false
-        type: string
-        default: '["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]'
       INSTALL_REQUIREMENTS:
         required: false
         type: boolean
@@ -31,10 +27,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ${{ fromJson(inputs.PYTHON_VERSIONS) }}
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
 
     steps:
       - name: Skip test based on commit message

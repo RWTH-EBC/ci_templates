@@ -9,13 +9,14 @@ on:
         required: false
         type: boolean
         default: false
-
-      COVERAGE_TEST:
+      EXECUTE_TESTS:
         required: false
         type: boolean
         default: false
-
-
+      EXECUTE_COVERAGE_TEST:
+        required: false
+        type: boolean
+        default: false
       BUILD_PACKAGE:
         required: false
         type: boolean
@@ -75,8 +76,18 @@ jobs:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
 
+  tests:
+    if: ${{inputs.EXECUTE_TESTS}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@main
+    with:
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      TEST_ENGINE: ${{inputs.PYTHON_PACKAGE_NAME}}
+      TEST_PATH: ${{inputs.PYTHON_PACKAGE_NAME}}
+
   coverage_test:
-    if: ${{inputs.COVERAGE_TEST}}
+    if: ${{inputs.EXECUTE_COVERAGE_TEST}}
     uses: RWTH-EBC/ci_templates/.github/workflows/test-coverage.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
