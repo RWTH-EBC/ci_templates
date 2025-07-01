@@ -35,7 +35,7 @@ jobs:
       - name: Skip test based on commit message
         id: skip
         run: |
-          PYTHON_VERSION="${${{ matrix.python-version }}//./}"
+          PYTHON_VERSION="${${{ matrix.python-version }}/.}"
           SKIP_KEYWORDS="skip-all-tests skip-python${PYTHON_VERSION}
           echo "Commit message: ${{ github.event.head_commit.message }}"
           for keyword in $SKIP_KEYWORDS; do
