@@ -21,7 +21,7 @@ on:
         type: boolean
         default: false
     secrets:
-      GH_TOKEN:
+      DEPLOY_TOKEN:
         required: true
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -44,7 +44,7 @@ jobs:
       - name: Setup gh-pages branch
         id: setup
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
