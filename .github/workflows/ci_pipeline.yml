@@ -74,6 +74,10 @@ on:
         type: string
         default: "chore(release): version {version}"
 
+    secrets:
+      GH_TOKEN:
+        required: false
+
 jobs:
   build:
     if: ${{inputs.BUILD_PACKAGE}}
