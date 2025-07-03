@@ -43,10 +43,12 @@ jobs:
 
       - name: Setup gh-pages branch
         id: setup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-          REPO_URL="https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
             git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
