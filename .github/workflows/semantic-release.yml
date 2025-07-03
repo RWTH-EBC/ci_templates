@@ -35,7 +35,10 @@ jobs:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
       - name: Set Git remote to use token
-        run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
+        run: |
+          echo ${{ secrets.GH_TOKEN }}
+          echo $GH_TOKEN
+          git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
