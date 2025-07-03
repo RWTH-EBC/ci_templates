@@ -34,7 +34,7 @@ jobs:
       - name: checkout repo
         run: |
           sudo apt-get update -y
-          'which ssh-agent || ( sudo apt-get update -y && sudo apt-get install openssh-client -y )'
+          which ssh-agent || ( sudo apt-get update -y && sudo apt-get install openssh-client -y )
           eval $(ssh-agent -s)
           mkdir -p ~/.ssh
           sudo ssh-keyscan github.com >> ~/.ssh/known_hosts
