@@ -63,7 +63,9 @@ jobs:
           
           echo "GITHUB_TOKEN is set: ${GITHUB_TOKEN:+yes}"
           
-          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/marvin-kluge/teaser_testing.git"
+          REPO_URL="git@github.com:${{ github.repository }}.git"
+#          REPO_URL="https://github.com/${{ github.repository }}.git"
+
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
             git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
