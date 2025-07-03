@@ -65,14 +65,14 @@ on:
         type: string
         default: "default"
 
-    DIRECTORY:
-      required: false
-      type: string
-      default: "."
-    COMMIT_SUBJECT:
-      required: false
-      type: string
-      default: "chore(release): version {version}"
+      DIRECTORY:
+        required: false
+        type: string
+        default: "."
+      COMMIT_SUBJECT:
+        required: false
+        type: string
+        default: "chore(release): version {version}"
 
 jobs:
   build:
