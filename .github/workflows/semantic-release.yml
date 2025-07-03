@@ -1,0 +1,56 @@
+name: Semantic Release
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_VERSION:
+        required: false
+        type: string
+        default: "3.10"
+      DIRECTORY:
+        required: false
+        type: string
+        default: "."
+      COMMIT_SUBJECT:
+        required: false
+        type: string
+        default: "chore(release): version {version}"
+    secrets:
+      GH_TOKEN:
+        required: true
+
+jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # required for full history and tags
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
+
+      - name: Install semantic-release
+        run: pip install python-semantic-release --disable-pip-version-check
+
+      - name: Set Git config
+        run: |
+          git config user.email "semantic-release@github-actions"
+          git config user.name "semantic-release (via GitHub Actions)"
+
+      - name: Change directory
+        if: ${{ inputs.DIRECTORY != '.' }}
+        run: cd ${{ inputs.DIRECTORY }}
+
+      - name: Run semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          COMMIT_SUBJECT: ${{ inputs.COMMIT_SUBJECT }}
+        run: |
+          echo "Running semantic-release in: ${{ inputs.DIRECTORY }}"
+          cd ${{ inputs.DIRECTORY }}
+          semantic-release version --no-vcs-release
