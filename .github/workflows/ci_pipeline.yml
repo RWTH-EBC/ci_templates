@@ -140,5 +140,4 @@ jobs:
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
     secrets:
-      GH_TOKEN:
-        required: true
+      GH_TOKEN: inherit
