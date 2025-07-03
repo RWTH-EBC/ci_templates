@@ -25,6 +25,10 @@ on:
         required: false
         type: boolean
         default: false
+      USE_SEMANTIC_RELEASE:
+        required: false
+        type: boolean
+        default: false
 
 
       PYTHON_VERSION:
@@ -47,6 +51,7 @@ on:
         required: false
         type: string
         default: ""
+
       TEST_ENGINE:
         required: false
         type: string
@@ -59,6 +64,15 @@ on:
         required: false
         type: string
         default: "default"
+
+    DIRECTORY:
+      required: false
+      type: string
+      default: "."
+    COMMIT_SUBJECT:
+      required: false
+      type: string
+      default: "chore(release): version {version}"
 
 jobs:
   build:
@@ -117,3 +131,14 @@ jobs:
       INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
       EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+
+  semantic_release:
+    if: ${{inputs.USE_SEMANTIC_RELEASE}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      DIRECTORY: ${{inputs.DIRECTORY}}
+      COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
+    secrets:
+      GH_TOKEN:
+        required: true
