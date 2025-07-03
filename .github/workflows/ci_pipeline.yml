@@ -172,13 +172,13 @@ jobs:
   gh_pages:
     if: ${{inputs.GH_PAGES}}
     uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
-    needs:
-      - pylint
-      - tests
-      - coverage_test
-      - sphinx_doc
-      - ruff
-      - build
+#    needs:
+#      - pylint
+#      - tests
+#      - coverage_test
+#      - sphinx_doc
+#      - ruff
+#      - build
     with:
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
       GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
