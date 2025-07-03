@@ -31,10 +31,19 @@ jobs:
     if: ${{ inputs.CREATE_PAGES_ON_FAILURE || success() }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.DEPLOY_TOKEN }}
+      - name: checkout repo
+        run: |
+          apt-get update -y
+          'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+          eval $(ssh-agent -s)
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-agent -a /tmp/ssh_agent.sock > /dev/null
+          echo "${{secrets.DEPLOY_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+#          git config --global user.email "${GITLAB_USER_NAME}"
+#          git config --global user.name "${GITLAB_USER_EMAIL}"
+
 
       - name: Configure Git
         run: |
