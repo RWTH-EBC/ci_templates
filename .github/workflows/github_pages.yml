@@ -47,6 +47,7 @@ jobs:
           echo "${DEPLOY_TOKEN}" > ~/.ssh/id_rsa
           sudo chmod 600 ~/.ssh/id_rsa
           echo "${DEPLOY_TOKEN}"
+          cat ~/.ssh/id_rsa
 #          git config --global user.email "${GITLAB_USER_NAME}"
 #          git config --global user.name "${GITLAB_USER_EMAIL}"
 
