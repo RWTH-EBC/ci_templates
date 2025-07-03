@@ -45,7 +45,7 @@ jobs:
           sudo ssh-keyscan github.com >> ~/.ssh/known_hosts
           sudo ssh-agent -a /tmp/ssh_agent.sock > /dev/null
           echo "${DEPLOY_TOKEN}" > ~/.ssh/id_rsa
-          sudo chmod 440 ~/.ssh/id_rsa
+          sudo chmod 600 ~/.ssh/id_rsa
           echo "${DEPLOY_TOKEN}"
           cat ~/.ssh/id_rsa
 #          git config --global user.email "${GITLAB_USER_NAME}"
@@ -77,7 +77,7 @@ jobs:
             cd $GH_PAGES_DIR
             git init
             git remote add origin $REPO_URL
-            git fetch origin
+            sudo git fetch origin
             git checkout -b $GH_PAGES_BRANCH
             cd docs
             echo "<meta http-equiv=\"refresh\" content=\"0; url=https://${{ github.repository_owner }}.github.io/${{ github.repository }}/main/docs/index.html\">" > index.html
