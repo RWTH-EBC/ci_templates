@@ -34,26 +34,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: webfactory/ssh-agent@v0.9.0
+      - name: TEST AUTH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-            ssh-private-key: ${{ secrets.DEPLOY_TOKEN }}
-#      - name: ssh auth
-#        env:
-#          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-#        run: |
-#          sudo apt-get update -y
-#          which ssh-agent || ( sudo apt-get update -y && sudo apt-get install openssh-client -y )
-#          eval $(ssh-agent -s)
-#          mkdir -p ~/.ssh
-#          sudo ssh-keyscan github.com >> ~/.ssh/known_hosts
-#          sudo ssh-agent -a /tmp/ssh_agent.sock > /dev/null
-#          echo "${DEPLOY_TOKEN}" > ~/.ssh/id_rsa
-#          sudo chmod 600 ~/.ssh/id_rsa
-#          echo "${DEPLOY_TOKEN}"
-#          cat ~/.ssh/id_rsa
-#          git config --global user.email "${GITLAB_USER_NAME}"
-#          git config --global user.name "${GITLAB_USER_EMAIL}"
-
+          ssh-private-key: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Configure Git
         run: |
