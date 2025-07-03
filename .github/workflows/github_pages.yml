@@ -45,7 +45,7 @@ jobs:
           sudo ssh-keyscan github.com >> ~/.ssh/known_hosts
           sudo ssh-agent -a /tmp/ssh_agent.sock > /dev/null
           echo "${DEPLOY_TOKEN}" > ~/.ssh/id_rsa
-          sudo chmod 650 ~/.ssh/id_rsa
+          sudo chmod 440 ~/.ssh/id_rsa
           echo "${DEPLOY_TOKEN}"
           cat ~/.ssh/id_rsa
 #          git config --global user.email "${GITLAB_USER_NAME}"
