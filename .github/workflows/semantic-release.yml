@@ -34,6 +34,11 @@ jobs:
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
+      - name: Set Git remote to use token
+        run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: Install semantic-release
         run: pip install python-semantic-release --disable-pip-version-check
 
