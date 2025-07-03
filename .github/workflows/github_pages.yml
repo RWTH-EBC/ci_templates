@@ -33,14 +33,14 @@ jobs:
     steps:
       - name: checkout repo
         run: |
-          apt-get update -y
-          'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+          sudo apt-get update -y
+          'which ssh-agent || ( sudo apt-get update -y && sudo apt-get install openssh-client -y )'
           eval $(ssh-agent -s)
           mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          ssh-agent -a /tmp/ssh_agent.sock > /dev/null
+          sudo ssh-keyscan github.com >> ~/.ssh/known_hosts
+          sudo ssh-agent -a /tmp/ssh_agent.sock > /dev/null
           echo "${{secrets.DEPLOY_KEY}}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          sudo chmod 600 ~/.ssh/id_rsa
 #          git config --global user.email "${GITLAB_USER_NAME}"
 #          git config --global user.name "${GITLAB_USER_EMAIL}"
 
