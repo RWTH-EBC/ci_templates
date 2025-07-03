@@ -31,7 +31,10 @@ jobs:
     if: ${{ inputs.CREATE_PAGES_ON_FAILURE || success() }}
 
     steps:
-      - name: checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: ssh auth
         run: |
           sudo apt-get update -y
           which ssh-agent || ( sudo apt-get update -y && sudo apt-get install openssh-client -y )
