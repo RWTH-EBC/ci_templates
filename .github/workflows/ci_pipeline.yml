@@ -29,6 +29,10 @@ on:
         required: false
         type: boolean
         default: false
+      GH_PAGES:
+        required: false
+        type: boolean
+        default: false
 
 
       PYTHON_VERSION:
@@ -73,6 +77,23 @@ on:
         required: false
         type: string
         default: "chore(release): version {version}"
+
+      GH_PAGES_BRANCH:
+        required: false
+        type: string
+        default: "gh-pages"
+      GH_PAGES_DIR:
+        required: false
+        type: string
+        default: "/tmp/gh-pages"
+      DOCS_PATH:
+        required: false
+        type: string
+        default: "docs"
+      CREATE_PAGES_ON_FAILURE:
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       GH_TOKEN:
@@ -143,5 +164,16 @@ jobs:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
+    secrets:
+      GH_TOKEN: inherit
+
+  gh_pages:
+    if: ${{inputs.GH_PAGES}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
+    with:
+      GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
+      GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
+      DOCS_PATH: ${{inputs.DOCS_PATH}}
+      CREATE_PAGES_ON_FAILURE: ${{inputs.CREATE_PAGES_ON_FAILURE}}
     secrets:
       GH_TOKEN: inherit
