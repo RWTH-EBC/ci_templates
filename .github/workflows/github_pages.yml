@@ -21,8 +21,6 @@ on:
         type: boolean
         default: false
     secrets:
-      DEPLOY_TOKEN:
-        required: true
       GH_TOKEN:
         required: true
 
@@ -36,31 +34,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+
+
       - name: Configure Git
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set Git remote to use token
-        run: |
-          GH_REPO=${{ github.repository }}
-          git remote set-url origin https://${GH_TOKEN}@github.com/${GH_REPO%/}.git
+        run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Setup gh-pages branch
         id: setup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-          GH_REPO=${{ github.repository }}
-          echo "GITHUB_TOKEN is set: ${GITHUB_TOKEN:+yes}"
-          REPO_URL="https://oauth2:${{ secrets.GH_TOKEN }}@github.com/${GH_REPO%/}.git"
-          $REPO_URL=$(git remote get-url origin)
-          echo "$REPO_URL"                 
+          REPO_URL="$(git remote get-url origin)"
+          
+          echo $REPO_URL
+          
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
             git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
-#            git checkout -b $GH_PAGES_BRANCH
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
             git rm -r "${GITHUB_REF_NAME}" || true
           else
