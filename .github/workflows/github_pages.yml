@@ -42,17 +42,13 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Set Git remote to use token
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-        run: git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
-
       - name: TESTING AUTH
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          REPO_URL=$(git remote get-url origin)
+#          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
           git ls-remote "$REPO_URL"
           mkdir ./test
 #          echo git config --get --global --unset credential.helper || true
