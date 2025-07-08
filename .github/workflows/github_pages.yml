@@ -31,15 +31,16 @@ jobs:
     if: ${{ inputs.CREATE_PAGES_ON_FAILURE || success() }}
 
     steps:
+      - name: Set Git config
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.DEPLOY_TOKEN }}
           fetch-depth: 0
-      - name: Set Git config
-        run: |
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --global user.name "${{ github.actor }}"
       - name: TESTING AUTH
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
