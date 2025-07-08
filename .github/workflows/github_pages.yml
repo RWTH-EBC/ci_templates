@@ -53,7 +53,7 @@ jobs:
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-          REPO_URL=https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           
           echo $REPO_URL
           
@@ -65,7 +65,7 @@ jobs:
             mkdir -p $GH_PAGES_DIR/docs
             cd $GH_PAGES_DIR
             git init
-            git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+            git remote add origin "$REPO_URL"
             echo $(git remote get-url origin)
             echo $(git remote -v)
             git fetch origin
