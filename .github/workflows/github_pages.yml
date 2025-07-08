@@ -49,11 +49,11 @@ jobs:
       - name: Setup gh-pages branch
         id: setup
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-          REPO_URL="$(git remote get-url origin)"
+          REPO_URL=https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git
           
           echo $REPO_URL
           
