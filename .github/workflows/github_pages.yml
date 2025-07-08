@@ -23,6 +23,8 @@ on:
     secrets:
       DEPLOY_TOKEN:
         required: true
+      GH_TOKEN:
+        required: true
 
 jobs:
   deploy:
@@ -49,16 +51,11 @@ jobs:
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-#          GH_REPO=${{ github.repository }}
-#
-#          echo "GITHUB_TOKEN is set: ${GITHUB_TOKEN:+yes}"
-#          REPO_URL="https://oauth2:${{ secrets.GH_TOKEN }}@github.com/${GH_REPO%/}.git"
-          
-#          echo "$REPO_URL"
-
+          GH_REPO=${{ github.repository }}
+          echo "GITHUB_TOKEN is set: ${GITHUB_TOKEN:+yes}"
+          REPO_URL="https://oauth2:${{ secrets.GH_TOKEN }}@github.com/${GH_REPO%/}.git"
           $REPO_URL=$(git remote get-url origin)
-
-                  
+          echo "$REPO_URL"                 
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
             git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
 #            git checkout -b $GH_PAGES_BRANCH
