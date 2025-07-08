@@ -166,10 +166,25 @@ jobs:
     secrets:
       TOKEN: ${{ secrets.TOKEN }}
 
+  wait_for_all:
+    name: Wait for all active jobs
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - pylint
+      - tests
+      - coverage_test
+      - ruff
+      - sphinx_doc
+      - semantic_release
+    steps:
+      - run: echo "All active jobs done"
+
   gh_pages:
     if: ${{inputs.GH_PAGES}}
     needs:
-      - tests
+      - wait_for_all
     uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
     with:
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}

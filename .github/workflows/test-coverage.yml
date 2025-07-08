@@ -59,7 +59,7 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
+          pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest setuptools
 
       - name: Run tests with coverage
         run: |
