@@ -65,8 +65,9 @@ jobs:
             mkdir -p $GH_PAGES_DIR/docs
             cd $GH_PAGES_DIR
             git init
-            git remote add origin $REPO_URL
+            git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
             echo $(git remote get-url origin)
+            echo $(git remote -v)
             git fetch origin
             git checkout -b $GH_PAGES_BRANCH
             cd docs
