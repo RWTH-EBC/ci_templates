@@ -42,14 +42,6 @@ jobs:
         with:
           token: ${{ secrets.TOKEN }}
           fetch-depth: 0
-      - name: TESTING AUTH
-        env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          REPO_URL=$(git remote get-url origin)
-          git ls-remote "$REPO_URL"
-          mkdir ./test
-          git clone "$REPO_URL" ./test
       - name: Setup gh-pages branch
         id: setup
         env:
