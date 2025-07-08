@@ -34,8 +34,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-
-
       - name: Configure Git
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
@@ -45,6 +43,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
+
+      - name: Set Git remote to use token
+        run: |
+          REPO_URL"https://${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git ls-remote "$REPO_URL"
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Setup gh-pages branch
         id: setup
