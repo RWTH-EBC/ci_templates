@@ -52,6 +52,7 @@ jobs:
           REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git ls-remote "$REPO_URL"
           mkdir ./test
+          git config --global --unset credential.helper || true
           git clone "$REPO_URL" ./test
 
 
