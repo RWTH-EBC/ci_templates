@@ -35,21 +35,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.DEPLOY_TOKEN }}
-          fetch-depth: 0  # required for full history and tags
-
+          fetch-depth: 0
       - name: TESTING AUTH
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           REPO_URL=$(git remote get-url origin)
-#          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
           git ls-remote "$REPO_URL"
           mkdir ./test
-#          echo git config --get --global --unset credential.helper || true
           git clone "$REPO_URL" ./test
-
-
       - name: Setup gh-pages branch
         id: setup
         env:
