@@ -66,6 +66,7 @@ jobs:
             cd $GH_PAGES_DIR
             git init
             git remote add origin $REPO_URL
+            echo $(git remote get-url origin)
             git fetch origin
             git checkout -b $GH_PAGES_BRANCH
             cd docs
