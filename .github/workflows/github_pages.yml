@@ -40,11 +40,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.DEPLOY_TOKEN }}
+          token: ${{ secrets.TOKEN }}
           fetch-depth: 0
       - name: TESTING AUTH
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
           REPO_URL=$(git remote get-url origin)
           git ls-remote "$REPO_URL"
@@ -53,7 +53,7 @@ jobs:
       - name: Setup gh-pages branch
         id: setup
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
