@@ -178,5 +178,4 @@ jobs:
       DOCS_PATH: ${{inputs.DOCS_PATH}}
       CREATE_PAGES_ON_FAILURE: ${{inputs.CREATE_PAGES_ON_FAILURE}}
     secrets:
-      DEPLOY_TOKEN: inherit
       GH_TOKEN: inherit
