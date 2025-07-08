@@ -72,7 +72,11 @@ jobs:
       - name: Copy docs folder
         run: |
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs"
-          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/"
+          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/docs"
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${GH_PAGES_DIR}/${GITHUB_REF_NAME}/
 
       - name: Delete folders older than 14 days
         run: |
