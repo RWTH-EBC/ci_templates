@@ -48,7 +48,7 @@ jobs:
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
           
           echo "GITHUB_TOKEN is set: ${GITHUB_TOKEN:+yes}"
-          REPO_URL="https://oauth2:$GITHUB_TOKEN@${{ github.repository }}.git"
+          REPO_URL="https://oauth2:$GITHUB_TOKEN@github.com/${{ github.repository }}.git"
                   
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
             git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
