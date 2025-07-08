@@ -41,7 +41,7 @@ jobs:
 
       - name: Setup gh-pages branch
         id: setup
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
