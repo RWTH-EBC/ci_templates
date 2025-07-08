@@ -51,6 +51,8 @@ jobs:
         run: |
           REPO_URL="https://${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git ls-remote "$REPO_URL"
+          mkdir ./test
+          git clone "$REPO_URL" ./test
 
 
       - name: Setup gh-pages branch
