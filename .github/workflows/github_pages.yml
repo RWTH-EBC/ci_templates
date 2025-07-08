@@ -44,7 +44,7 @@ jobs:
       - name: Set Git remote to use token
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-        run: git remote set-url origin https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git
+        run: git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
       - name: Setup gh-pages branch
         id: setup
@@ -53,7 +53,7 @@ jobs:
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-          REPO_URL=https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git
+          REPO_URL=https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
           
           echo $REPO_URL
           
