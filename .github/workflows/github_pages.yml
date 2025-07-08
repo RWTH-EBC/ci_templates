@@ -42,7 +42,9 @@ jobs:
           git config user.name "${{ github.actor }}"
 
       - name: Set Git remote to use token
-        run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
+        run: |
+          GH_REPO=${{ github.repository }}
+          git remote set-url origin https://${GH_TOKEN}@github.com/${GH_REPO%/}.git
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
