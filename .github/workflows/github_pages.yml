@@ -42,9 +42,9 @@ jobs:
           git config user.name "${{ github.actor }}"
 
       - name: Set Git remote to use token
-        run: git remote set-url origin https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: git remote set-url origin https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git
 
       - name: Setup gh-pages branch
         id: setup
