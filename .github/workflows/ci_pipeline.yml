@@ -163,7 +163,7 @@ jobs:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
-#    secrets:
+    secrets:
       TOKEN: ${{ secrets.TOKEN }}
 
   gh_pages:
@@ -174,5 +174,5 @@ jobs:
       GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
       DOCS_PATH: ${{inputs.DOCS_PATH}}
       CREATE_PAGES_ON_FAILURE: ${{inputs.CREATE_PAGES_ON_FAILURE}}
-#    secrets:
+    secrets:
       TOKEN: ${{ secrets.TOKEN }}
