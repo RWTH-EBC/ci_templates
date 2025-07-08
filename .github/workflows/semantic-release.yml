@@ -58,4 +58,4 @@ jobs:
         run: |
           echo "Running semantic-release in: ${{ inputs.DIRECTORY }}"
           cd ${{ inputs.DIRECTORY }}
-          semantic-release version --no-vcs-release
+          semantic-release version
