@@ -62,8 +62,6 @@ jobs:
             cd $GH_PAGES_DIR/docs
             git init
             git remote add origin "$REPO_URL"
-            echo $(git remote get-url origin)
-            echo $(git remote -v)
             git fetch origin
             git checkout -b $GH_PAGES_BRANCH
             cd docs
@@ -73,7 +71,7 @@ jobs:
 
       - name: Copy docs folder
         run: |
-          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
+          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs"
           cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/"
 
       - name: Delete folders older than 14 days
