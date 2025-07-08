@@ -37,12 +37,6 @@ jobs:
           token: ${{ secrets.DEPLOY_TOKEN }}
           fetch-depth: 0  # required for full history and tags
 
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --global user.name "${{ github.actor }}"
-
       - name: TESTING AUTH
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
