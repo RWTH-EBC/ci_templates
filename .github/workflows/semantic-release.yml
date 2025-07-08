@@ -25,10 +25,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set Git config
+        run: |
+          git config user.email "semantic-release@github-actions"
+          git config user.name "semantic-release (via GitHub Actions)"
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # required for full history and tags
+          token: ${{ secrets.TOKEN }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,15 +43,10 @@ jobs:
       - name: Set Git remote to use token
         run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
 
       - name: Install semantic-release
         run: pip install python-semantic-release --disable-pip-version-check
-
-      - name: Set Git config
-        run: |
-          git config user.email "semantic-release@github-actions"
-          git config user.name "semantic-release (via GitHub Actions)"
 
       - name: Change directory
         if: ${{ inputs.DIRECTORY != '.' }}
@@ -54,7 +54,7 @@ jobs:
 
       - name: Run semantic-release
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
           COMMIT_SUBJECT: ${{ inputs.COMMIT_SUBJECT }}
         run: |
           echo "Running semantic-release in: ${{ inputs.DIRECTORY }}"

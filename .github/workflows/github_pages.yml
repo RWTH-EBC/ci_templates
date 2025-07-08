@@ -78,7 +78,7 @@ jobs:
 
       - name: Delete folders older than 14 days
         run: |
-          GH_PAGES_DIR=${{ steps.setup.outputs.GH_PAGES_DIR }}
+          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
           cd $GH_PAGES_DIR/docs
 
           remote_branches=$(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin)
