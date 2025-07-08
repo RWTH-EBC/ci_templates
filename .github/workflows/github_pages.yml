@@ -33,11 +33,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DEPLOY_TOKEN }}
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git config user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
 
       - name: Set Git remote to use token
         env:
@@ -52,7 +55,7 @@ jobs:
           REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git ls-remote "$REPO_URL"
           mkdir ./test
-          git config --global --unset credential.helper || true
+#          echo git config --get --global --unset credential.helper || true
           git clone "$REPO_URL" ./test
 
 
