@@ -94,10 +94,9 @@ on:
         required: false
         type: boolean
         default: false
-
+    secrets:
       TOKEN:
         required: false
-        type: string
 
 jobs:
   build:
@@ -164,7 +163,7 @@ jobs:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
-      TOKEN: ${{ inputs.TOKEN }}
+      TOKEN: ${{ secrets.TOKEN }}
 
   gh_pages:
     if: ${{inputs.GH_PAGES}}
@@ -174,4 +173,4 @@ jobs:
       GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
       DOCS_PATH: ${{inputs.DOCS_PATH}}
       CREATE_PAGES_ON_FAILURE: ${{inputs.CREATE_PAGES_ON_FAILURE}}
-      TOKEN: ${{ inputs.TOKEN }}
+      TOKEN: ${{ secrets.TOKEN }}
