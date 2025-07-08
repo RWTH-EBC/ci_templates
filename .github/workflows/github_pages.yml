@@ -49,7 +49,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          REPO_URL="https://${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git ls-remote "$REPO_URL"
           mkdir ./test
           git clone "$REPO_URL" ./test
