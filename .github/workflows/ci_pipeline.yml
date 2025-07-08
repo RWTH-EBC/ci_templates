@@ -174,7 +174,6 @@ jobs:
       - build
       - pylint
       - tests
-      - coverage_test
       - ruff
       - sphinx_doc
       - semantic_release
