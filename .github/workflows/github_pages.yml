@@ -71,8 +71,11 @@ jobs:
 
       - name: Copy docs folder
         run: |
-          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs"
-          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/docs"
+          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs" 
+          echo $(ls -la)
+          echo $(${GH_PAGES_DIR}/${GITHUB_REF_NAME})
+          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}"
+          echo $(ls -la $(${GH_PAGES_DIR}/${GITHUB_REF_NAME}))
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
