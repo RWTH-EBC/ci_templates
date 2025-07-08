@@ -15,8 +15,8 @@ on:
         required: false
         type: string
         default: "chore(release): version {version}"
-    secrets:
-      GH_TOKEN:
+      TOKEN:
+        type: string
         required: true
 
 jobs:

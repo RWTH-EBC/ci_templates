@@ -20,9 +20,9 @@ on:
         required: false
         type: boolean
         default: false
-    secrets:
-      DEPLOY_TOKEN:
+      TOKEN:
         required: true
+        type: string
 
 jobs:
   deploy:
