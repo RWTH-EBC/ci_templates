@@ -45,12 +45,13 @@ jobs:
         run: git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
 
-      - name: Set Git remote to use token
-        run: |
-          REPO_URL"https://${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git ls-remote "$REPO_URL"
+      - name: TESTING AUTH
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          REPO_URL="https://${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git ls-remote "$REPO_URL"
+
 
       - name: Setup gh-pages branch
         id: setup
