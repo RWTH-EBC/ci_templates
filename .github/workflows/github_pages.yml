@@ -20,9 +20,6 @@ on:
         required: false
         type: boolean
         default: false
-      TOKEN:
-        required: True
-        type: string
     secrets:
       DEPLOY_TOKEN:
         required: true
