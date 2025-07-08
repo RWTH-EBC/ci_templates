@@ -26,7 +26,7 @@ on:
 #        type: string
 
 jobs:
-  deploy:
+  gh_pages:
     runs-on: ubuntu-latest
 
     if: ${{ inputs.CREATE_PAGES_ON_FAILURE || success() }}
