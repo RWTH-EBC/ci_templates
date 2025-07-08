@@ -21,7 +21,7 @@ on:
         type: boolean
         default: false
     secrets:
-      GH_TOKEN:
+      DEPLOY_TOKEN:
         required: true
 
 jobs:
@@ -42,9 +42,9 @@ jobs:
           git config user.name "${{ github.actor }}"
 
       - name: Set Git remote to use token
-        run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
+        run: git remote set-url origin https://oauth2:$GH_TOKEN@github.com/${{ github.repository }}.git
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Setup gh-pages branch
         id: setup
