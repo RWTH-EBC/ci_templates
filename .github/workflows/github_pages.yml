@@ -72,7 +72,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: "${{ inputs.GH_PAGES_DIR}}/docs/${GITHUB_REF_NAME}/"
+          path: "${{ inputs.GH_PAGES_DIR}}/docs/"${GITHUB_REF_NAME}/
 
 #      - name: Copy artefacts
 #        run: |
