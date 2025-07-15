@@ -58,7 +58,6 @@ jobs:
             mkdir -p $GH_PAGES_DIR
             cd $GH_PAGES_DIR
             git clone $REPO_URL .
-            echo $(pwd)
             git checkout -b $GH_PAGES_BRANCH --track origin/$GH_PAGES_BRANCH
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
             git rm -r "${GITHUB_REF_NAME}" || true
@@ -74,6 +73,7 @@ jobs:
             echo "<meta http-equiv=\"refresh\" content=\"0; url=https://${{ github.repository_owner }}.github.io/${{ github.repository }}/main/docs/index.html\">" > index.html
             touch .nojekyll
           fi
+            mkdir -p $GH_PAGES_DIR/docs/${GITHUB_REF_NAME}
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
