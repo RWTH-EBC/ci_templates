@@ -49,7 +49,10 @@ jobs:
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
-          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"       
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          
+          echo $REPO_URL
+          
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
             git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
@@ -65,15 +68,14 @@ jobs:
             echo "<meta http-equiv=\"refresh\" content=\"0; url=https://${{ github.repository_owner }}.github.io/${{ github.repository }}/main/docs/index.html\">" > index.html
             touch .nojekyll
           fi
-          echo $(pwd)
 
       - name: Copy docs folder
         run: |
-          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs"
+          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs" 
           echo $(pwd)
           echo $(${GH_PAGES_DIR}/${GITHUB_REF_NAME})
-          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/docs"
-          echo $(ls -l $(${GH_PAGES_DIR}/${GITHUB_REF_NAME}))
+          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}"
+          echo $(ls -la $(${GH_PAGES_DIR}/${GITHUB_REF_NAME}))
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
