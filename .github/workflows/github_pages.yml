@@ -69,17 +69,21 @@ jobs:
             touch .nojekyll
           fi
 
-      - name: Copy docs folder
-        run: |
-          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs" 
-          echo $(ls -la)
-          echo $(${GH_PAGES_DIR}/${GITHUB_REF_NAME})
-          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}"
-          echo $(ls -la $(${GH_PAGES_DIR}/${GITHUB_REF_NAME}))
+#      - name: Copy docs folder
+#        run: |
+#          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs"
+#          echo $(pwd)
+#          echo $(${GH_PAGES_DIR}/${GITHUB_REF_NAME})
+#          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/docs"
+#          echo $(ls -l $(${GH_PAGES_DIR}/${GITHUB_REF_NAME}))
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: ${GH_PAGES_DIR}/${GITHUB_REF_NAME}/
+          path: "./artefacts"
+
+      - name: Copy artefacts
+        run: |
+          cp -r ./artefacts/* ${GH_PAGES_DIR}/${GITHUB_REF_NAME}
 
       - name: Delete folders older than 14 days
         run: |
