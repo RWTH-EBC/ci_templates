@@ -54,10 +54,15 @@ jobs:
           echo $REPO_URL
           
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
-            git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
+            echo "IF"
+            mkdir -p $GH_PAGES_DIR
+            cd $GH_PAGES_DIR
+            git clone $REPO_URL
+            git checkout -b $GH_PAGES_BRANCH --track origin/$GH_PAGES_BRANCH
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
             git rm -r "${GITHUB_REF_NAME}" || true
           else
+            echo "ELSE"
             mkdir -p $GH_PAGES_DIR/docs
             cd $GH_PAGES_DIR/docs
             git init
