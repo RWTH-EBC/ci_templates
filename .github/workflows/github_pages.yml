@@ -54,10 +54,15 @@ jobs:
           echo $REPO_URL
           
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
-            git clone --branch $GH_PAGES_BRANCH $REPO_URL $GH_PAGES_DIR
+            echo "IF"
+            mkdir -p $GH_PAGES_DIR
+            cd $GH_PAGES_DIR
+            git clone $REPO_URL .
+            git checkout -b $GH_PAGES_BRANCH --track origin/$GH_PAGES_BRANCH
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
             git rm -r "${GITHUB_REF_NAME}" || true
           else
+            echo "ELSE"
             mkdir -p $GH_PAGES_DIR/docs
             cd $GH_PAGES_DIR/docs
             git init
@@ -68,22 +73,16 @@ jobs:
             echo "<meta http-equiv=\"refresh\" content=\"0; url=https://${{ github.repository_owner }}.github.io/${{ github.repository }}/main/docs/index.html\">" > index.html
             touch .nojekyll
           fi
+            mkdir -p $GH_PAGES_DIR/docs/${GITHUB_REF_NAME}
 
-#      - name: Copy docs folder
-#        run: |
-#          GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}/docs"
-#          echo $(pwd)
-#          echo $(${GH_PAGES_DIR}/${GITHUB_REF_NAME})
-#          cp -r ${{ inputs.DOCS_PATH }} "${GH_PAGES_DIR}/${GITHUB_REF_NAME}/docs"
-#          echo $(ls -l $(${GH_PAGES_DIR}/${GITHUB_REF_NAME}))
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: "./artefacts"
+          path: "./artifacts/"
 
-      - name: Copy artefacts
+      - name: Copy artifacts
         run: |
-          cp -r ./artefacts/* ${{ inputs.GH_PAGES_DIR}}/docs/${GITHUB_REF_NAME}
+          cp -r ./artifacts/* ${{ inputs.GH_PAGES_DIR}}/docs/${GITHUB_REF_NAME}/
 
       - name: Delete folders older than 14 days
         run: |
