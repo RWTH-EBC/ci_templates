@@ -112,7 +112,7 @@ on:
         type: boolean
         default: false
     secrets:
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: false
       GITLAB_TOKEN:
         required: false
@@ -192,7 +192,7 @@ jobs:
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   gh_pages:
     if: always()
@@ -210,4 +210,4 @@ jobs:
       DOCS_PATH: ${{inputs.DOCS_PATH}}
       CREATE_PAGES_ON_FAILURE: ${{inputs.CREATE_PAGES_ON_FAILURE}}
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}

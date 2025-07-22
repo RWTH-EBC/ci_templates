@@ -16,7 +16,7 @@ on:
         type: string
         default: "chore(release): version {version}"
     secrets:
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: true
 #        type: string
 
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
       - name: Set up Python
@@ -43,7 +43,7 @@ jobs:
       - name: Set Git remote to use token
         run: git remote set-url origin https://${GH_TOKEN}@github.com/${{ github.repository }}.git
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Install semantic-release
         run: pip install python-semantic-release --disable-pip-version-check
@@ -59,7 +59,7 @@ jobs:
 
       - name: Run semantic-release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           COMMIT_SUBJECT: ${{ inputs.COMMIT_SUBJECT }}
         run: |
           echo "Running semantic-release in: ${{ inputs.DIRECTORY }}"
