@@ -3,6 +3,10 @@ name: Example File Converter
 on:
   workflow_call:
     inputs:
+      PYTHON_PACKAGE_NAME:
+        required: false
+        type: string
+        default: ""
       GIT_REPO:
         required: false
         type: string
@@ -47,7 +51,22 @@ jobs:
 
       - name: Run Converter
         run: |
-          python ../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py --config="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+          echo $(pwd)
+          echo $(ls -l)
+          
+          INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
+          if [ -n "$INPUT" ]; then
+            PATH="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+            echo "Using user-defined source dir: $PATH"
+          elif [ -d "$(basename $GITHUB_REPOSITORY)" ]; then
+            INPUT=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+            PATH="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+            echo "Using repo name as module name: $PATH"
+          else
+            PATH="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+          fi
+             
+          python ../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py --config=$PATH
 
       - name: Commit and Push if Changes Detected
         env:

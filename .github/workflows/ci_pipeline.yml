@@ -183,6 +183,7 @@ jobs:
     if: ${{inputs.CONVERT_EXAMPLES}}
     uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@4-examples-workflow
     with:
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
       GIT_REPO: ${{inputs.GIT_REPO}}
       EXAMPLE_CONVERTER_CONFIG: ${{inputs.EXAMPLE_CONVERTER_CONFIG}}
       COMMIT_MSG: ${{inputs.COMMIT_MSG}}
