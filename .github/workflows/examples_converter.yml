@@ -18,7 +18,7 @@ on:
       EXAMPLE_FILE_FOLDER:
         required: false
         type: string
-        default: "example-file-converter"
+        default: "converter"
 
     secrets:
       GITLAB_TOKEN:
@@ -40,13 +40,14 @@ jobs:
 
       - name: Clone Example File Converter
         run: |
-          git clone https://oauth2:${GITLAB_TOKEN}@git.rwth-aachen.de/EBC/EBC_all/gitlab_ci/example-file-converter "${{ inputs.EXAMPLE_FILE_FOLDER }}"
+          mkdir -p ../${{ inputs.EXAMPLE_FILE_FOLDER }}
+          git clone https://oauth2:${GITLAB_TOKEN}@git.rwth-aachen.de/EBC/EBC_all/gitlab_ci/example-file-converter ../${{ inputs.EXAMPLE_FILE_FOLDER }}
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
       - name: Run Converter
         run: |
-          python "${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py" --config="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+          python ../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py --config="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
 
       - name: Commit and Push if Changes Detected
         env:
