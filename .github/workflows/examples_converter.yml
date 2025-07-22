@@ -40,8 +40,7 @@ jobs:
 
       - name: Clone Example File Converter
         run: |
-          GITLAB_REPO="https://gitlab-ci-token:${GITLAB_TOKEN}@git.rwth-aachen.de/EBC/EBC_all/gitlab_ci/example-file-converter"
-          git clone "${GITLAB_REPO}" "${{ inputs.EXAMPLE_FILE_FOLDER }}"
+          git clone https://oauth2:${GITLAB_TOKEN}@git.rwth-aachen.de/EBC/EBC_all/gitlab_ci/example-file-converter "${{ inputs.EXAMPLE_FILE_FOLDER }}"
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
