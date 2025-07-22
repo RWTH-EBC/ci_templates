@@ -188,7 +188,7 @@ jobs:
 
   semantic_release:
     if: ${{inputs.USE_SEMANTIC_RELEASE}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
+    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@4-examples-workflow
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
@@ -205,7 +205,7 @@ jobs:
       - coverage_test
       - ruff
       - sphinx_doc
-    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
+    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@4-examples-workflow
     with:
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
       GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
