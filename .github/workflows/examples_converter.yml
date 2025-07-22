@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         default: ""
+      PYTHON_VERSION:
+        required: true
+        type: string
+        default: ""
       GIT_REPO:
         required: false
         type: string
@@ -37,6 +41,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
 
       - name: Install Dependencies
         run: |
