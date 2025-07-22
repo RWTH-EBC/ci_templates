@@ -85,15 +85,19 @@ on:
       GIT_REPO:
         required: false
         type: string
+        default: ""
       EXAMPLE_CONVERTER_CONFIG:
         required: false
         type: string
+        default: "examples/converter.toml"
       COMMIT_MSG:
         required: false
         type: string
+        default: "chore(examples): Automatic commit of example files in Markdown and Jupyter Notebook format."
       EXAMPLE_FILE_FOLDER:
         required: false
         type: string
+        default: "converter"
 
       GH_PAGES_BRANCH:
         required: false
