@@ -181,7 +181,7 @@ jobs:
 
   convert_examples:
     if: ${{inputs.CONVERT_EXAMPLES}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@4-examples-workflow
+    uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@main
     with:
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
@@ -194,7 +194,7 @@ jobs:
 
   semantic_release:
     if: ${{inputs.USE_SEMANTIC_RELEASE}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@4-examples-workflow
+    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
@@ -211,7 +211,7 @@ jobs:
       - coverage_test
       - ruff
       - sphinx_doc
-    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@4-examples-workflow
+    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
     with:
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
       GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
