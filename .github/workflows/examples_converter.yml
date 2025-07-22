@@ -47,6 +47,11 @@ jobs:
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
+      - name: Upgrade Pip
+        run: |
+          pip install --upgrade pip
+          python --version
+
       - name: Install Dependencies
         run: |
           pip install toml
