@@ -78,6 +78,19 @@ on:
         type: string
         default: "chore(release): version {version}"
 
+      GIT_REPO:
+        required: false
+        type: string
+      EXAMPLE_CONVERTER_CONFIG:
+        required: false
+        type: string
+      COMMIT_MSG:
+        required: false
+        type: string
+      EXAMPLE_FILE_FOLDER:
+        required: false
+        type: string
+
       GH_PAGES_BRANCH:
         required: false
         type: string
@@ -95,7 +108,9 @@ on:
         type: boolean
         default: false
     secrets:
-      TOKEN:
+      GITHUB_TOKEN:
+        required: false
+      GITLAB_TOKEN:
         required: false
 
 jobs:
@@ -156,6 +171,15 @@ jobs:
       EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
 
+  convert_examples:
+    if: ${{inputs.GENERATE_DOCUMENTATION}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@4-examples-workflow
+    with:
+      GIT_REPO: ${{inputs.GIT_REPO}}
+      EXAMPLE_CONVERTER_CONFIG: ${{inputs.EXAMPLE_CONVERTER_CONFIG}}
+      COMMIT_MSG: ${{inputs.COMMIT_MSG}}
+      EXAMPLE_FILE_FOLDER: ${{inputs.EXAMPLE_FILE_FOLDER}}
+
   semantic_release:
     if: ${{inputs.USE_SEMANTIC_RELEASE}}
     uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
@@ -164,7 +188,7 @@ jobs:
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
     secrets:
-      TOKEN: ${{ secrets.TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   gh_pages:
     if: always()
@@ -182,4 +206,4 @@ jobs:
       DOCS_PATH: ${{inputs.DOCS_PATH}}
       CREATE_PAGES_ON_FAILURE: ${{inputs.CREATE_PAGES_ON_FAILURE}}
     secrets:
-      TOKEN: ${{ secrets.TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

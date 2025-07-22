@@ -1,0 +1,66 @@
+name: Example File Converter
+
+on:
+  workflow_call:
+    inputs:
+      GIT_REPO:
+        required: false
+        type: string
+        default: ""
+      EXAMPLE_CONVERTER_CONFIG:
+        required: false
+        type: string
+        default: "examples/converter.toml"
+      COMMIT_MSG:
+        required: false
+        type: string
+        default: "chore(examples): Automatic commit of example files in Markdown and Jupyter Notebook format."
+      EXAMPLE_FILE_FOLDER:
+        required: false
+        type: string
+        default: "example-file-converter"
+
+    secrets:
+      GITLAB_TOKEN:
+        required: true
+
+jobs:
+  convert-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          pip install toml
+
+      - name: Clone Example File Converter
+        run: |
+          GITLAB_REPO="https://gitlab-ci-token:${GITLAB_TOKEN}@git.rwth-aachen.de/EBC/EBC_all/gitlab_ci/example-file-converter"
+          git clone "${GITLAB_REPO}" "${{ inputs.EXAMPLE_FILE_FOLDER }}"
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Run Converter
+        run: |
+          python "${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py" --config="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+
+      - name: Commit and Push if Changes Detected
+        env:
+          GIT_REPO: ${{ inputs.GIT_REPO }}
+          COMMIT_MSG: ${{ inputs.COMMIT_MSG }}
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          
+          git pull origin "${GITHUB_REF_NAME}" || true
+          if ! (git diff --quiet && git diff --staged --quiet); then
+            git commit -am "$COMMIT_MSG"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            echo "No changes to commit."
+          fi
