@@ -1,0 +1,100 @@
+name: Example File Converter
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_PACKAGE_NAME:
+        required: false
+        type: string
+        default: ""
+      PYTHON_VERSION:
+        required: true
+        type: string
+        default: ""
+      GIT_REPO:
+        required: false
+        type: string
+        default: ""
+      EXAMPLE_CONVERTER_CONFIG:
+        required: false
+        type: string
+        default: "examples/converter.toml"
+      COMMIT_MSG:
+        required: false
+        type: string
+        default: "chore(examples): Automatic commit of example files in Markdown and Jupyter Notebook format."
+      EXAMPLE_FILE_FOLDER:
+        required: false
+        type: string
+        default: "converter"
+
+    secrets:
+      GITLAB_TOKEN:
+        required: true
+
+jobs:
+  convert-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
+
+      - name: Upgrade Pip
+        run: |
+          pip install --upgrade pip
+          python --version
+
+      - name: Install Dependencies
+        run: |
+          pip install toml
+
+      - name: Clone Example File Converter
+        run: |
+          mkdir -p ../${{ inputs.EXAMPLE_FILE_FOLDER }}
+          git clone https://oauth2:${GITLAB_TOKEN}@git.rwth-aachen.de/EBC/EBC_all/gitlab_ci/example-file-converter ../${{ inputs.EXAMPLE_FILE_FOLDER }}
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Run Converter
+        run: |
+          echo "PYTHON VERSION IS $(python --version)"
+          INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
+          if [ -n "$INPUT" ]; then
+            PATH_TO_EXAMPLE_FOLDER="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+            echo "Using user-defined source dir: $PATH_TO_EXAMPLE_FOLDER"
+          elif [ -d "$(basename $GITHUB_REPOSITORY)" ]; then
+            INPUT=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+            PATH_TO_EXAMPLE_FOLDER="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+            echo "Using repo name as module name: $PATH_TO_EXAMPLE_FOLDER"
+          else
+            PATH_TO_EXAMPLE_FOLDER="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
+          fi
+          echo "PYTHON VERSION IS STILL $(python --version)"
+          PATH_TO_CONVERTER="../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py"
+          echo "PATH TO CONVERTER IS $PATH_TO_CONVERTER"
+          
+          python $PATH_TO_CONVERTER --config=$PATH_TO_EXAMPLE_FOLDER
+
+      - name: Commit and Push if Changes Detected
+        env:
+          GIT_REPO: ${{ inputs.GIT_REPO }}
+          COMMIT_MSG: ${{ inputs.COMMIT_MSG }}
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          
+          git pull origin "${GITHUB_REF_NAME}" || true
+          if ! (git diff --quiet && git diff --staged --quiet); then
+            git commit -am "$COMMIT_MSG"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            echo "No changes to commit."
+          fi
