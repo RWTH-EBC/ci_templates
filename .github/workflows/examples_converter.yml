@@ -64,7 +64,8 @@ jobs:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
       - name: Run Converter
-        run: |        
+        run: |
+          echo "PYTHON VERSION IS $(python --version)"
           INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
           if [ -n "$INPUT" ]; then
             PATH="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
@@ -76,8 +77,12 @@ jobs:
           else
             PATH="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
           fi
-             
-          python ../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py --config=$PATH
+          echo "PYTHON VERSION IS STILL $(python --version)"
+          
+          PATH_TO_CONVERTER="../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py"
+          echo "PATH TO CONVERTER IS $PATH_TO_CONVERTER"
+          
+          python $PATH_TO_CONVERTER --config=$PATH
 
       - name: Commit and Push if Changes Detected
         env:
