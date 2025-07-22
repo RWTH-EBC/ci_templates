@@ -17,6 +17,10 @@ on:
         required: false
         type: boolean
         default: false
+      CONVERT_EXAMPLES:
+        required: false
+        type: boolean
+        default: false
       BUILD_PACKAGE:
         required: false
         type: boolean
@@ -172,7 +176,7 @@ jobs:
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
 
   convert_examples:
-    if: ${{inputs.GENERATE_DOCUMENTATION}}
+    if: ${{inputs.CONVERT_EXAMPLES}}
     uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@4-examples-workflow
     with:
       GIT_REPO: ${{inputs.GIT_REPO}}
