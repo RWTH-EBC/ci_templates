@@ -183,6 +183,8 @@ jobs:
       EXAMPLE_CONVERTER_CONFIG: ${{inputs.EXAMPLE_CONVERTER_CONFIG}}
       COMMIT_MSG: ${{inputs.COMMIT_MSG}}
       EXAMPLE_FILE_FOLDER: ${{inputs.EXAMPLE_FILE_FOLDER}}
+    secrets:
+      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
   semantic_release:
     if: ${{inputs.USE_SEMANTIC_RELEASE}}
