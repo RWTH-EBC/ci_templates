@@ -21,7 +21,7 @@ on:
         type: boolean
         default: false
     secrets:
-      TOKEN:
+      GITHUB_TOKEN:
         required: true
 #        type: string
 
@@ -40,12 +40,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
       - name: Setup gh-pages branch
         id: setup
         env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           GH_PAGES_BRANCH="${{ inputs.GH_PAGES_BRANCH}}"
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
@@ -84,7 +84,7 @@ jobs:
         run: |
           cp -r ./artifacts/* ${{ inputs.GH_PAGES_DIR}}/docs/${GITHUB_REF_NAME}/
 
-      - name: Delete folders older than 14 days
+      - name: Delete folders older than 30 days except protected branches
         run: |
           GH_PAGES_DIR="${{ inputs.GH_PAGES_DIR}}"
           cd $GH_PAGES_DIR/docs
@@ -102,7 +102,7 @@ jobs:
               last_commit_ts=$(date -d "$last_commit_date" +%s)
               current_ts=$(date +%s)
               days_diff=$(( (current_ts - last_commit_ts) / 86400 ))
-              if (( days_diff >= 180 )); then
+              if (( days_diff >= 30 )); then
                 echo "Deleting folder $folder (no commits in $days_diff days)"
                 rm -rf "$folder"
               else
