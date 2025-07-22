@@ -59,10 +59,7 @@ jobs:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
       - name: Run Converter
-        run: |
-          echo $(pwd)
-          echo $(ls -l)
-          
+        run: |        
           INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
           if [ -n "$INPUT" ]; then
             PATH="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
