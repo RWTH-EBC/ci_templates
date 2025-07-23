@@ -3,6 +3,10 @@ name: Example File Converter
 on:
   workflow_call:
     inputs:
+      CONVERT_EXAMPLES:
+        required: false
+        type: boolean
+        default: false
       PYTHON_PACKAGE_NAME:
         required: false
         type: string
@@ -34,6 +38,7 @@ on:
 
 jobs:
   convert-examples:
+    if: ${{inputs.CONVERT_EXAMPLES}}
     runs-on: ubuntu-latest
 
     steps:
@@ -65,7 +70,6 @@ jobs:
 
       - name: Run Converter
         run: |
-          echo "PYTHON VERSION IS $(python --version)"
           INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
           if [ -n "$INPUT" ]; then
             PATH_TO_EXAMPLE_FOLDER="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
@@ -77,10 +81,7 @@ jobs:
           else
             PATH_TO_EXAMPLE_FOLDER="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
           fi
-          echo "PYTHON VERSION IS STILL $(python --version)"
           PATH_TO_CONVERTER="../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py"
-          echo "PATH TO CONVERTER IS $PATH_TO_CONVERTER"
-          
           python $PATH_TO_CONVERTER --config=$PATH_TO_EXAMPLE_FOLDER
 
       - name: Commit and Push if Changes Detected

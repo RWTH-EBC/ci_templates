@@ -180,9 +180,17 @@ jobs:
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
 
   convert_examples:
-    if: ${{inputs.CONVERT_EXAMPLES}}
+    if: always()
+    needs:
+      - build
+      - pylint
+      - tests
+      - coverage_test
+      - ruff
+      - sphinx_doc
     uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@main
     with:
+      CONVERT_EXAMPLES: ${{inputs.CONVERT_EXAMPLES}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       GIT_REPO: ${{inputs.GIT_REPO}}
@@ -193,9 +201,18 @@ jobs:
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
   semantic_release:
-    if: ${{inputs.USE_SEMANTIC_RELEASE}}
+    if: always()
+    needs:
+      - build
+      - pylint
+      - tests
+      - coverage_test
+      - ruff
+      - sphinx_doc
+      - convert_examples
     uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
     with:
+      USE_SEMANTIC_RELEASE: ${{inputs.USE_SEMANTIC_RELEASE}}
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
@@ -211,6 +228,7 @@ jobs:
       - coverage_test
       - ruff
       - sphinx_doc
+      - convert_examples
     uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
     with:
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
