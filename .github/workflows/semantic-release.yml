@@ -3,6 +3,10 @@ name: Semantic Release
 on:
   workflow_call:
     inputs:
+      USE_SEMANTIC_RELEASE:
+        required: false
+        type: boolean
+        default: false
       PYTHON_VERSION:
         required: false
         type: string
@@ -18,10 +22,10 @@ on:
     secrets:
       GH_TOKEN:
         required: false
-#        type: string
 
 jobs:
   semantic-release:
+    if: ${{inputs.USE_SEMANTIC_RELEASE}}
     runs-on: ubuntu-latest
 
     steps:

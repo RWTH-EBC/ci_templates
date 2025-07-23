@@ -23,7 +23,6 @@ on:
     secrets:
       GH_TOKEN:
         required: true
-#        type: string
 
 jobs:
   gh_pages:
@@ -54,7 +53,6 @@ jobs:
           echo $REPO_URL
           
           if git ls-remote --exit-code --heads $REPO_URL $GH_PAGES_BRANCH; then
-            echo "IF"
             mkdir -p $GH_PAGES_DIR
             cd $GH_PAGES_DIR
             git clone $REPO_URL .
@@ -62,7 +60,6 @@ jobs:
             cd $GH_PAGES_DIR/docs || mkdir -p $GH_PAGES_DIR/docs
             git rm -r "${GITHUB_REF_NAME}" || true
           else
-            echo "ELSE"
             mkdir -p $GH_PAGES_DIR/docs
             cd $GH_PAGES_DIR/docs
             git init
