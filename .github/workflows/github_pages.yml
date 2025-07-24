@@ -1,9 +1,12 @@
-# .github/workflows/deploy-gh-pages.yml
 name: Deploy GitHub Pages
 
 on:
   workflow_call:
     inputs:
+      GH_PAGES:
+        required: false
+        type: boolean
+        default: false
       GH_PAGES_BRANCH:
         required: false
         type: string
@@ -28,7 +31,7 @@ jobs:
   gh_pages:
     runs-on: ubuntu-latest
 
-    if: ${{ inputs.CREATE_PAGES_ON_FAILURE || success() }}
+    if: ${{ (inputs.CREATE_PAGES_ON_FAILURE && inputs.GH_PAGES) || success() }}
 
     steps:
       - name: Set Git config

@@ -81,7 +81,6 @@ on:
         required: false
         type: string
         default: "chore(release): version {version}"
-
       GIT_REPO:
         required: false
         type: string
@@ -231,6 +230,7 @@ jobs:
       - convert_examples
     uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
     with:
+      GH_PAGES: ${{inputs.GH_PAGES}}
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
       GH_PAGES_DIR: ${{inputs.GH_PAGES_DIR}}
       DOCS_PATH: ${{inputs.DOCS_PATH}}
