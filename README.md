@@ -2,12 +2,15 @@
 
 ---
 
-This repository provides a centralized GitHub Actions workflow designed to orchestrate multiple reusable workflows for Python projects.  
-It acts as a single entry point to trigger selected CI jobs like linting, building packages, and generating documentation.
+This repository provides a centralized GitHub Actions workflow designed to orchestrate multiple reusable workflows for
+Python projects.  
+It acts as a single entry point to trigger selected CI jobs like linting, building packages, and generating
+documentation.
 
 ## Usage
 
-You need to create the ./.github/workflows/ folder and the ./.github/workflows/ci.yml file in your repository and import this workflow.
+You need to create the ./.github/workflows/ folder and the ./.github/workflows/ci.yml file in your repository and import
+this workflow.
 
 ```yaml
 name: Python CI
@@ -19,6 +22,7 @@ jobs:
   ci:
     uses: RWTH-EBC/ci_templates/.github/workflows/ci_pipeline.yml@main
 ```
+
 This is a minimal example that does not include any functionality.
 
 ## Requirements
@@ -27,10 +31,15 @@ This is a minimal example that does not include any functionality.
 - Optional: `requirements.txt` and/or `docs/requirements.txt`
 - This workflow assumes conventional project layouts (e.g., code inside a folder named after the repo or explicitly
   passed)
-- If you want to use the convert_examples workflow, you need a GitLab access token and must add it as a repository secret
-  - For information on how to create a repository secret, read [this guide](https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/using-secrets-in-github-actions)
-- If you want to use a workflow that pushes code (e.g., github_pages, semantic_release, or convert_examples), you need a GitHub access token as a repository secret
-  - For information on how to create a GitHub access token, read [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+- If you want to use the convert_examples workflow, you need a GitLab access token and must add it as a repository
+  secret
+    - For information on how to create a repository secret,
+      read [this guide](https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/using-secrets-in-github-actions)
+- If you want to use a workflow that pushes code (e.g., github_pages, semantic_release, or convert_examples), you need a
+  GitHub access token as a repository secret
+    - For information on how to create a GitHub access token,
+      read [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+
 ## Example
 
 ```yaml
@@ -61,30 +70,37 @@ jobs:
 
 ## Inputs
 
-| Name                      | Type    | Default                               | Description                                                                                     |
-|---------------------------|---------|---------------------------------------|-------------------------------------------------------------------------------------------------|
-| `PYTHON_VERSION`          | string  | `"3.13"`                              | Python version to use                                                                           |
-| `USE_PYLINT`              | boolean | `false`                               | Run static code analysis using `pylint`                                                         |
-| `USE_RUFF`                | boolean | `false`                               | Run static code analysis using `ruff`                                                           |
-| `BUILD_PACKAGE`           | boolean | `false`                               | Build and verify the Python package                                                             |
-| `GENERATE_DOCUMENTATION`  | boolean | `false`                               | Build Sphinx documentation                                                                      |
-| `PYTHON_PACKAGE_NAME`     | string  | `""`                                  | The name of your Python package (needed when the package name is different then the repository) |
-| `USE_UV`                  | boolean | `false`                               | Use `uv` instead of `pip` for installing dependencies                                           |
-| `INSTALL_REQUIREMENTS`    | boolean | `true`                                | Install from `requirements.txt` if it exists                                                    |
-| `EXTRA_REQUIREMENTS`      | string  | `""`                                  | Extra requirements to pass to pip install (e.g. `[dev]`)                                        |
-| `EXECUTE_TESTS`           | boolean | `false`                               | Run the test suite using `pytest` or `unittest`                                                 |
-| `EXECUTE_COVERAGE_TEST`   | boolean | `false`                               | Run tests with coverage report and badge                                                        |
-| `TEST_ENGINE`             | string  | `"PYTEST"`                            | Which test engine to use (`PYTEST` or `UNITTEST`)                                               |
-| `TEST_PATH`               | string  | `"tests"`                             | Path to the test folder                                                                         |
-| `COVERAGE_TYPE`           | string  | `"default"`                           | Coverage type, used to distinguish CI environments                                              |
-| `USE_SEMANTIC_RELEASE`    | boolean | `false`                               | Enable automated versioning and changelog generation                                            |
-| `COMMIT_SUBJECT`          | string  | `"chore(release): version {version}"` | Commit message for releases                                                                     |
-| `DIRECTORY`               | string  | `"."`                                 | Directory where `pyproject.toml` is located                                                     |
-| `GH_PAGES`                | boolean | `false`                               | Enable GitHub Pages deployment                                                                  |
-| `GH_PAGES_BRANCH`         | string  | `"gh-pages"`                          | Target branch for GitHub Pages                                                                  |
-| `GH_PAGES_DIR`            | string  | `"/tmp/gh-pages"`                     | Temporary folder to stage GitHub Pages files                                                    |
-| `DOCS_PATH`               | string  | `"docs"`                              | Directory where documentation output is located                                                 |
-| `CREATE_PAGES_ON_FAILURE` | boolean | `false`                               | If `true`, deployment will also run on failed builds                                            |
+## Inputs
+
+| Name                       | Type    | Default                                                                                         | Description                                                                                       |
+|----------------------------|---------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `PYTHON_VERSION`           | string  | `"3.10"`                                                                                        | Python version to use                                                                             |
+| `USE_PYLINT`               | boolean | `false`                                                                                         | Run static code analysis using `pylint`                                                           |
+| `USE_RUFF`                 | boolean | `false`                                                                                         | Run static code analysis using `ruff`                                                             |
+| `BUILD_PACKAGE`            | boolean | `false`                                                                                         | Build and verify the Python package                                                               |
+| `GENERATE_DOCUMENTATION`   | boolean | `false`                                                                                         | Build Sphinx documentation                                                                        |
+| `PYTHON_PACKAGE_NAME`      | string  | `""`                                                                                            | The name of your Python package ((needed when the package name is different then the repository)) |
+| `USE_UV`                   | boolean | `false`                                                                                         | Use `uv` instead of `pip` for installing dependencies                                             |
+| `INSTALL_REQUIREMENTS`     | boolean | `true`                                                                                          | Install from `requirements.txt` if it exists                                                      |
+| `EXTRA_REQUIREMENTS`       | string  | `""`                                                                                            | Extra requirements to pass to pip install (e.g. `[dev]`)                                          |
+| `EXECUTE_TESTS`            | boolean | `false`                                                                                         | Run unit tests                                                                                    |
+| `EXECUTE_COVERAGE_TEST`    | boolean | `false`                                                                                         | Run coverage tests                                                                                |
+| `COVERAGE_TYPE`            | string  | `"default"`                                                                                     | Coverage mode: `default` or `Dymola`                                                              |
+| `TEST_ENGINE`              | string  | `"PYTEST"`                                                                                      | Test runner engine (`PYTEST`, `unittest`, ...)                                                    |
+| `TEST_PATH`                | string  | `"tests"`                                                                                       | Path to test folder                                                                               |
+| `USE_SEMANTIC_RELEASE`     | boolean | `false`                                                                                         | Use Python Semantic Release for versioning                                                        |
+| `DIRECTORY`                | string  | `"."`                                                                                           | Project base directory for semantic release                                                       |
+| `COMMIT_SUBJECT`           | string  | `"chore(release): version {version}"`                                                           | Commit message format for release                                                                 |
+| `GH_PAGES`                 | boolean | `false`                                                                                         | Enable GitHub Pages deployment                                                                    |
+| `GH_PAGES_BRANCH`          | string  | `"gh-pages"`                                                                                    | Target branch for GitHub Pages deployment                                                         |
+| `GH_PAGES_DIR`             | string  | `"/tmp/gh-pages"`                                                                               | Temp directory for Pages workflow                                                                 |
+| `DOCS_PATH`                | string  | `"docs"`                                                                                        | Path to documentation                                                                             |
+| `CREATE_PAGES_ON_FAILURE`  | boolean | `false`                                                                                         | Whether to generate pages even if previous steps failed                                           |
+| `CONVERT_EXAMPLES`         | boolean | `false`                                                                                         | Enable automatic example conversion into jupyter notebook                                         |
+| `GIT_REPO`                 | string  | `""`                                                                                            | Git repo to push converted files to (only used for example conversion)                            |
+| `EXAMPLE_CONVERTER_CONFIG` | string  | `"examples/converter.toml"`                                                                     | Config file for example converter                                                                 |
+| `COMMIT_MSG`               | string  | `"chore(examples): Automatic commit of example files in Markdown and Jupyter Notebook format."` | Commit message for example converter                                                              |
+| `EXAMPLE_FILE_FOLDER`      | string  | `"converter"`                                                                                   | Folder where the converter repo will be cloned                                                    |
 
 ## Included Workflows
 
