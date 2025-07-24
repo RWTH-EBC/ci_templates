@@ -154,6 +154,10 @@ This CI workflow can trigger the following individual workflows:
 - Supports dynamic branch folders (e.g. per-branch previews)
 - Automatically cleans up outdated previews
 
+### `examples_converter.yml`
+- Clones a template repo and converts `.md` and `.ipynb` example files.
+- Commits and pushes the converted files to the current repo or a custom repo.
+
 ---
 
 ## Artifacts
