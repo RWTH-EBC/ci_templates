@@ -7,8 +7,30 @@ It acts as a single entry point to trigger selected CI jobs like linting, buildi
 
 ## Usage
 
-You need to create ./.github/workflows/ci.yml in your repository and import this workflow.
+You need to create the ./.github/workflows/ folder and the ./.github/workflows/ci.yml file in your repository and import this workflow.
 
+```yaml
+name: Python CI
+
+on:
+  push:
+
+jobs:
+  ci:
+    uses: RWTH-EBC/ci_templates/.github/workflows/ci_pipeline.yml@main
+```
+This is a minimal example that does not include any functionality.
+
+## Requirements
+
+- Python project with `setup.py` or `pyproject.toml`
+- Optional: `requirements.txt` and/or `docs/requirements.txt`
+- This workflow assumes conventional project layouts (e.g., code inside a folder named after the repo or explicitly
+  passed)
+- If you want to use the convert_examples workflow, you need a GitLab access token and must add it as a repository secret
+  - For information on how to create a repository secret, read [this guide](https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/using-secrets-in-github-actions)
+- If you want to use a workflow that pushes code (e.g., github_pages, semantic_release, or convert_examples), you need a GitHub access token as a repository secret
+  - For information on how to create a GitHub access token, read [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 ## Example
 
 ```yaml
@@ -128,13 +150,3 @@ Depending on which workflows are enabled, the CI run may upload the following ar
 - `docs/` — Sphinx HTML documentation
 
 ---
-
-## Requirements
-
-- Python project with `setup.py` or `pyproject.toml`
-- Optional: `requirements.txt` and/or `docs/requirements.txt`
-- This workflow assumes conventional project layouts (e.g., code inside a folder named after the repo or explicitly
-  passed)
-- if you want to use the convert_examples workflow you need a gitlab access token and add is as a repository secret
-- if you want to use a workflow that pushes code (e.g github_pages, semantic_release, convert_examples) you need a
-  github access token as a repository secret
