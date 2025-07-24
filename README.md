@@ -5,9 +5,12 @@ Python projects.
 It acts as a single entry point to trigger selected CI jobs like linting, building packages, and generating
 documentation.
 ---
+
 ## Usage
 
-To use this workflow in your own repository:
+You need to create ./.github/workflows/ci.yml in your repository and import this workflow.
+
+## Example
 
 ```yaml
 name: Python CI
@@ -27,40 +30,40 @@ jobs:
       USE_RUFF: true
       BUILD_PACKAGE: true
       GENERATE_DOCUMENTATION: true
-      USE_SEMANTIC_RELEASE: false
+      GH_PAGES: true
       EXECUTE_TESTS: true
       EXECUTE_COVERAGE_TEST: true
       CONVERT_EXAMPLES: true
-      EXTRA_REQUIREMENTS: '[report]'
-      PYTHON_PACKAGE_NAME: 'teaser'
+      EXTRA_REQUIREMENTS: '[dev]'
 
 ```
+
 ## Inputs
 
-| Name                      | Type    | Default                               | Description                                              |
-|---------------------------|---------|---------------------------------------|----------------------------------------------------------|
-| `PYTHON_VERSION`          | string  | `"3.13"`                              | Python version to use                                    |
-| `USE_PYLINT`              | boolean | `false`                               | Run static code analysis using `pylint`                  |
-| `USE_RUFF`                | boolean | `false`                               | Run static code analysis using `ruff`                    |
-| `BUILD_PACKAGE`           | boolean | `false`                               | Build and verify the Python package                      |
-| `GENERATE_DOCUMENTATION`  | boolean | `false`                               | Build Sphinx documentation                               |
-| `PYTHON_PACKAGE_NAME`     | string  | `""`                                  | The name of your Python package (optional)               |
-| `USE_UV`                  | boolean | `false`                               | Use `uv` instead of `pip` for installing dependencies    |
-| `INSTALL_REQUIREMENTS`    | boolean | `true`                                | Install from `requirements.txt` if it exists             |
-| `EXTRA_REQUIREMENTS`      | string  | `""`                                  | Extra requirements to pass to pip install (e.g. `[dev]`) |
-| `EXECUTE_TESTS`           | boolean | `false`                               | Run the test suite using `pytest` or `unittest`          |
-| `EXECUTE_COVERAGE_TEST`   | boolean | `false`                               | Run tests with coverage report and badge                 |
-| `TEST_ENGINE`             | string  | `"PYTEST"`                            | Which test engine to use (`PYTEST` or `UNITTEST`)        |
-| `TEST_PATH`               | string  | `"tests"`                             | Path to the test folder                                  |
-| `COVERAGE_TYPE`           | string  | `"default"`                           | Coverage type, used to distinguish CI environments       |
-| `USE_SEMANTIC_RELEASE`    | boolean | `false`                               | Enable automated versioning and changelog generation     |
-| `COMMIT_SUBJECT`          | string  | `"chore(release): version {version}"` | Commit message for releases                              |
-| `DIRECTORY`               | string  | `"."`                                 | Directory where `pyproject.toml` is located              |
-| `GH_PAGES`                | boolean | `false`                               | Enable GitHub Pages deployment                           |
-| `GH_PAGES_BRANCH`         | string  | `"gh-pages"`                          | Target branch for GitHub Pages                           |
-| `GH_PAGES_DIR`            | string  | `"/tmp/gh-pages"`                     | Temporary folder to stage GitHub Pages files             |
-| `DOCS_PATH`               | string  | `"docs"`                              | Directory where documentation output is located          |
-| `CREATE_PAGES_ON_FAILURE` | boolean | `false`                               | If `true`, deployment will also run on failed builds     |
+| Name                      | Type    | Default                               | Description                                                                                     |
+|---------------------------|---------|---------------------------------------|-------------------------------------------------------------------------------------------------|
+| `PYTHON_VERSION`          | string  | `"3.13"`                              | Python version to use                                                                           |
+| `USE_PYLINT`              | boolean | `false`                               | Run static code analysis using `pylint`                                                         |
+| `USE_RUFF`                | boolean | `false`                               | Run static code analysis using `ruff`                                                           |
+| `BUILD_PACKAGE`           | boolean | `false`                               | Build and verify the Python package                                                             |
+| `GENERATE_DOCUMENTATION`  | boolean | `false`                               | Build Sphinx documentation                                                                      |
+| `PYTHON_PACKAGE_NAME`     | string  | `""`                                  | The name of your Python package (needed when the package name is different then the repository) |
+| `USE_UV`                  | boolean | `false`                               | Use `uv` instead of `pip` for installing dependencies                                           |
+| `INSTALL_REQUIREMENTS`    | boolean | `true`                                | Install from `requirements.txt` if it exists                                                    |
+| `EXTRA_REQUIREMENTS`      | string  | `""`                                  | Extra requirements to pass to pip install (e.g. `[dev]`)                                        |
+| `EXECUTE_TESTS`           | boolean | `false`                               | Run the test suite using `pytest` or `unittest`                                                 |
+| `EXECUTE_COVERAGE_TEST`   | boolean | `false`                               | Run tests with coverage report and badge                                                        |
+| `TEST_ENGINE`             | string  | `"PYTEST"`                            | Which test engine to use (`PYTEST` or `UNITTEST`)                                               |
+| `TEST_PATH`               | string  | `"tests"`                             | Path to the test folder                                                                         |
+| `COVERAGE_TYPE`           | string  | `"default"`                           | Coverage type, used to distinguish CI environments                                              |
+| `USE_SEMANTIC_RELEASE`    | boolean | `false`                               | Enable automated versioning and changelog generation                                            |
+| `COMMIT_SUBJECT`          | string  | `"chore(release): version {version}"` | Commit message for releases                                                                     |
+| `DIRECTORY`               | string  | `"."`                                 | Directory where `pyproject.toml` is located                                                     |
+| `GH_PAGES`                | boolean | `false`                               | Enable GitHub Pages deployment                                                                  |
+| `GH_PAGES_BRANCH`         | string  | `"gh-pages"`                          | Target branch for GitHub Pages                                                                  |
+| `GH_PAGES_DIR`            | string  | `"/tmp/gh-pages"`                     | Temporary folder to stage GitHub Pages files                                                    |
+| `DOCS_PATH`               | string  | `"docs"`                              | Directory where documentation output is located                                                 |
+| `CREATE_PAGES_ON_FAILURE` | boolean | `false`                               | If `true`, deployment will also run on failed builds                                            |
 
 ## Included Workflows
 
@@ -113,7 +116,9 @@ This CI workflow can trigger the following individual workflows:
 - Deploys built documentation (e.g. Sphinx) to GitHub Pages
 - Supports dynamic branch folders (e.g. per-branch previews)
 - Automatically cleans up outdated previews
+
 ---
+
 ## Artifacts
 
 Depending on which workflows are enabled, the CI run may upload the following artifacts:
@@ -122,7 +127,9 @@ Depending on which workflows are enabled, the CI run may upload the following ar
 - `pylint-report/` — Pylint output (text, HTML, badge)
 - `ruff-report/` — Ruff output (text, HTML, badge)
 - `docs/` — Sphinx HTML documentation
+
 ---
+
 ## Requirements
 
 - Python project with `setup.py` or `pyproject.toml`

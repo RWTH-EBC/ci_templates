@@ -31,7 +31,7 @@ jobs:
   gh_pages:
     runs-on: ubuntu-latest
 
-    if: ${{ (inputs.CREATE_PAGES_ON_FAILURE && inputs.GH_PAGES) || success() }}
+    if: ${{ (inputs.CREATE_PAGES_ON_FAILURE && inputs.GH_PAGES) }}
 
     steps:
       - name: Set Git config
