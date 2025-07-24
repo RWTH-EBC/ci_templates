@@ -1,10 +1,9 @@
 # EBC CI Templates
 
-This repository provides a centralized GitHub Actions workflow designed to orchestrate multiple reusable workflows for
-Python projects.  
-It acts as a single entry point to trigger selected CI jobs like linting, building packages, and generating
-documentation.
 ---
+
+This repository provides a centralized GitHub Actions workflow designed to orchestrate multiple reusable workflows for Python projects.  
+It acts as a single entry point to trigger selected CI jobs like linting, building packages, and generating documentation.
 
 ## Usage
 
