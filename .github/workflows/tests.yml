@@ -6,7 +6,7 @@ on:
       PYTHON_TEST_MATRIX:
         required: false
         type: string
-        default: "['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']"
+        default: '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'
       TEST_PATH:
         required: false
         type: string
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ${{ fromJson(inputs.PYTHON_VERSION_MATRIX) }}
+        python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
 
     steps:
       - name: Skip test based on commit message
