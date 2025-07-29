@@ -70,8 +70,6 @@ jobs:
 
 ## Inputs
 
-## Inputs
-
 | Name                       | Type    | Default                                                                                         | Description                                                                                       |
 |----------------------------|---------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `PYTHON_VERSION`           | string  | `"3.10"`                                                                                        | Python version to use                                                                             |
@@ -86,6 +84,7 @@ jobs:
 | `EXECUTE_TESTS`            | boolean | `false`                                                                                         | Run unit tests                                                                                    |
 | `EXECUTE_COVERAGE_TEST`    | boolean | `false`                                                                                         | Run coverage tests                                                                                |
 | `COVERAGE_TYPE`            | string  | `"default"`                                                                                     | Coverage mode: `default` or `Dymola`                                                              |
+| `PYTHON_TEST_MATRIX`       | string  | `'["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'`                                              | List of Python versions to run tests against as a matrix (e.g. `["3.10", "3.11"]`)                |
 | `TEST_ENGINE`              | string  | `"PYTEST"`                                                                                      | Test runner engine (`PYTEST`, `unittest`, ...)                                                    |
 | `TEST_PATH`                | string  | `"tests"`                                                                                       | Path to test folder                                                                               |
 | `USE_SEMANTIC_RELEASE`     | boolean | `false`                                                                                         | Use Python Semantic Release for versioning                                                        |
@@ -155,6 +154,7 @@ This CI workflow can trigger the following individual workflows:
 - Automatically cleans up outdated previews
 
 ### `examples_converter.yml`
+
 - Clones a template repo and converts `.md` and `.ipynb` example files.
 - Commits and pushes the converted files to the current repo or a custom repo.
 
