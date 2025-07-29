@@ -35,10 +35,14 @@ on:
         required: false
         type: string
         default: ""
+      USE_DYMOLA:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   coverage:
-    if: ${{ inputs.COVERAGE_TYPE != 'Dymola' }}
+    if: ${{ !inputs.USE_DYMOLA }}
     runs-on: ubuntu-latest
 
     steps:
@@ -84,8 +88,8 @@ jobs:
 
   dymola_coverage:
      # NEEDS A SELF HOSTED RUNNER WITH TAG
-    if: ${{ inputs.COVERAGE_TYPE == 'Dymola' }}
-    runs-on: [self-hosted] # <- RUNNER TAG GOES IN HERE
+    if: ${{ inputs.USE_DYMOLA }}
+    runs-on: [dymola]
     container:
       # IMAGE NEEDED ON GITHUB
       image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
