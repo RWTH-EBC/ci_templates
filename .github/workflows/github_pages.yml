@@ -82,7 +82,7 @@ jobs:
 
       - name: Copy artifacts
         run: |
-          cp -r ./artifacts/* ${{ inputs.GH_PAGES_DIR}}/docs/${GITHUB_REF_NAME}/
+          cp -r ./artifacts/docs/* ${{ inputs.GH_PAGES_DIR}}/docs/${GITHUB_REF_NAME}/
 
       - name: Delete folders older than 30 days except protected branches
         run: |
