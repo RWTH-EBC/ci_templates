@@ -64,7 +64,7 @@ jobs:
             git rm -r "${GITHUB_REF_NAME}" || true
           else
             mkdir -p $GH_PAGES_DIR/docs
-            cd $GH_PAGES_DIR/docs
+            cd $GH_PAGES_DIR
             git init
             git remote add origin "$REPO_URL"
             git fetch origin
