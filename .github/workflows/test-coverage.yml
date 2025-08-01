@@ -92,7 +92,8 @@ jobs:
     runs-on: [dymola]
     container:
       # IMAGE NEEDED ON GITHUB
-      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+      image: dymola2024
+#      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
       options: --user root
 
     steps:
