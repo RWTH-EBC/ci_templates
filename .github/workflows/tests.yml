@@ -38,18 +38,22 @@ jobs:
     steps:
       - name: Skip test based on commit message
         id: skip
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           PYTHON_VERSION="${{ matrix.python-version }}"
           PYTHON_VERSION_NO_DOT="${PYTHON_VERSION//./}"
-          SKIP_KEYWORDS="skip-all-tests skip-python$PYTHON_VERSION_NO_DOT"
-          echo "Commit message: ${{ github.event.head_commit.message }}"
-          for keyword in $SKIP_KEYWORDS; do
-            if [[ "${{ github.event.head_commit.message }}" =~ $keyword ]]; then
+          SKIP_KEYWORDS=("skip-all-tests" "skip-python$PYTHON_VERSION_NO_DOT")
+          echo "Commit message: $COMMIT_MESSAGE"
+          
+          for keyword in "${SKIP_KEYWORDS[@]}"; do
+            if [[ "$COMMIT_MESSAGE" =~ $keyword ]]; then
               echo "Skip detected: $keyword"
               echo "skip=true" >> $GITHUB_OUTPUT
               exit 0
             fi
           done
+          
           echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Cancel skipped job
