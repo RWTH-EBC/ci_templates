@@ -1,5 +1,3 @@
-#NOT TESTED
-
 name: Release to PyPI
 
 on:
@@ -29,8 +27,9 @@ on:
         type: string
         default: "__version__"
       GIT_REPO:
-        required: true
+        required: false
         type: string
+        default: ""
 
     secrets:
       PYPI_USERNAME:
@@ -38,7 +37,7 @@ on:
       PYPI_PASSWORD:
         required: true
       GH_TOKEN:
-        required: false  # optional, required if gh release is used
+        required: false
 
 jobs:
   release:
@@ -54,46 +53,103 @@ jobs:
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
-
       - name: Install project
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
           use-uv: ${{ inputs.USE_UV }}
-          install-requirements: ${{inputs.INSTALL_REQUIREMENTS}}
-          extra-requirements: ${{inputs.EXTRA_REQUIREMENTS}}
+          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
+          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
 
       - name: Install dependencies
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y gh
           pip install --upgrade pip
           pip install twine build
 
+      - name: Install GitHub CLI
+        if: ${{ secrets.GH_TOKEN != '' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gh
 
       - name: Build Python package
         run: python -m build
 
-      - name: Install built package
+      - name: Install built package and get version
+        id: version
         run: |
           FILE=$(echo dist/*.tar.gz)
           pip install "$FILE"
-
-      - name: Get version from Python module
-        id: version
-        run: |
-          VERSION=$(python -c "import ${{ inputs.PYTHON_PACKAGE_NAME }}; print(${{ inputs.PYTHON_PACKAGE_NAME }}.${{ inputs.PYTHON_VERSION_NAME }})")
+          
+          # Try to get version from the installed package
+          if python -c "import ${{ inputs.PYTHON_PACKAGE_NAME }}" 2>/dev/null; then
+            VERSION=$(python -c "import ${{ inputs.PYTHON_PACKAGE_NAME }}; print(getattr(${{ inputs.PYTHON_PACKAGE_NAME }}, '${{ inputs.PYTHON_VERSION_NAME }}', 'unknown'))")
+            if [ "$VERSION" = "unknown" ]; then
+              echo "Warning: Could not find version attribute '${{ inputs.PYTHON_VERSION_NAME }}' in package"
+              # Fallback: try to extract version from setup.py or pyproject.toml
+              if [ -f "setup.py" ]; then
+                VERSION=$(python setup.py --version 2>/dev/null || echo "0.0.0")
+              elif [ -f "pyproject.toml" ]; then
+                VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb')).get('project', {}).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")
+              else
+                VERSION="0.0.0"
+              fi
+            fi
+          else
+            echo "Error: Could not import package ${{ inputs.PYTHON_PACKAGE_NAME }}"
+            exit 1
+          fi
+          
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Verify version is not empty
+        run: |
+          if [ -z "${{ steps.version.outputs.version }}" ] || [ "${{ steps.version.outputs.version }}" = "unknown" ]; then
+            echo "Error: Could not determine package version"
+            exit 1
+          fi
 
       - name: Create GitHub release
         if: ${{ secrets.GH_TOKEN != '' }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          gh release create v${{ steps.version.outputs.version }} --generate-notes || true
+          # Check if release already exists
+          if gh release view "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "Release v${{ steps.version.outputs.version }} already exists"
+          else
+            echo "Creating release v${{ steps.version.outputs.version }}"
+            gh release create "v${{ steps.version.outputs.version }}" \
+              --title "Release v${{ steps.version.outputs.version }}" \
+              --generate-notes \
+              dist/*
+          fi
+
+      - name: Check if package version already exists on PyPI
+        run: |
+          PACKAGE_NAME="${{ inputs.PYTHON_PACKAGE_NAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # Check if this version already exists on PyPI
+          if pip index versions "$PACKAGE_NAME" | grep -q "$VERSION"; then
+            echo "Version $VERSION of $PACKAGE_NAME already exists on PyPI"
+            echo "SKIP_PYPI=true" >> $GITHUB_ENV
+          else
+            echo "Version $VERSION of $PACKAGE_NAME does not exist on PyPI, proceeding with upload"
+            echo "SKIP_PYPI=false" >> $GITHUB_ENV
+          fi
 
       - name: Upload to PyPI
+        if: env.SKIP_PYPI == 'false'
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: twine upload dist/*
+        run: |
+          echo "Uploading to PyPI..."
+          twine upload dist/*
+
+      - name: Skip PyPI upload
+        if: env.SKIP_PYPI == 'true'
+        run: |
+          echo "Skipping PyPI upload - version already exists"

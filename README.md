@@ -39,6 +39,10 @@ This is a minimal example that does not include any functionality.
   GitHub access token as a repository secret
     - For information on how to create a GitHub access token,
       read [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+- If you want to use the PyPI release workflow, you need PyPI credentials as repository secrets
+    - You can use either username/password or API token authentication
+    - For information on how to create a PyPI API token,
+      read [this guide](https://pypi.org/help/#apitoken)
 
 ## Example
 
@@ -54,6 +58,8 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+      PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     with:
       PYTHON_VERSION: "3.13"
       USE_PYLINT: true
@@ -64,6 +70,7 @@ jobs:
       EXECUTE_TESTS: true
       EXECUTE_COVERAGE_TEST: true
       CONVERT_EXAMPLES: true
+      PYPI_RELEASE: true
       EXTRA_REQUIREMENTS: '[dev]'
 
 ```
@@ -100,6 +107,17 @@ jobs:
 | `EXAMPLE_CONVERTER_CONFIG` | string  | `"examples/converter.toml"`                                                                     | Config file for example converter                                                                 |
 | `COMMIT_MSG`               | string  | `"chore(examples): Automatic commit of example files in Markdown and Jupyter Notebook format."` | Commit message for example converter                                                              |
 | `EXAMPLE_FILE_FOLDER`      | string  | `"converter"`                                                                                   | Folder where the converter repo will be cloned                                                    |
+| `PYPI_RELEASE`             | boolean | `false`                                                                                         | Enable PyPI release (only triggered on main branch with "PYPI-RELEASE" in commit message)        |
+| `PYTHON_VERSION_NAME`      | string  | `"__version__"`                                                                                 | Name of the version attribute in your Python package                                              |
+
+## Secrets
+
+| Name             | Required | Description                                                      |
+|------------------|----------|------------------------------------------------------------------|
+| `GH_TOKEN`       | false    | GitHub personal access token (required for releases and pages)  |
+| `GITLAB_TOKEN`   | false    | GitLab access token (required for example conversion)           |
+| `PYPI_USERNAME`  | false    | PyPI username (required for PyPI releases)                      |
+| `PYPI_PASSWORD`  | false    | PyPI password or API token (required for PyPI releases)         |
 
 ## Included Workflows
 
@@ -158,15 +176,81 @@ This CI workflow can trigger the following individual workflows:
 - Clones a template repo and converts `.md` and `.ipynb` example files.
 - Commits and pushes the converted files to the current repo or a custom repo.
 
+### `release.yml`
+
+- Builds and releases your Python package to PyPI
+- Creates GitHub releases with built distributions
+- **Trigger conditions:**
+  - Only runs on commits to the `main` branch
+  - Only runs when commit message contains `PYPI-RELEASE`
+  - Only runs when `PYPI_RELEASE` input is set to `true`
+- Automatically detects package version from your Python module
+- Prevents duplicate releases (checks if version already exists on PyPI)
+- Supports both PyPI username/password and API token authentication
+
+## PyPI Release Workflow
+
+The PyPI release workflow has special trigger conditions to prevent accidental releases:
+
+### Trigger Requirements
+1. **Branch**: Must be a push to the `main` branch
+2. **Commit Message**: Must contain the text `PYPI-RELEASE`
+3. **Input Parameter**: `PYPI_RELEASE` must be set to `true`
+4. **Dependencies**: All other workflows (build, tests, etc.) must complete successfully
+
+### Example Usage
+To trigger a PyPI release, make a commit with a message like:
+```bash
+git commit -m "feat: add new feature PYPI-RELEASE"
+```
+
+And ensure your workflow configuration includes:
+```yaml
+with:
+  PYPI_RELEASE: true
+  PYTHON_PACKAGE_NAME: "your-package-name"
+```
+
+### Version Detection
+The workflow automatically detects your package version by:
+1. First trying to import your package and read the version attribute (default: `__version__`)
+2. Falling back to `setup.py --version` if available
+3. Falling back to reading version from `pyproject.toml`
+4. Failing if no version can be determined
+
+### PyPI Authentication
+You can use either traditional username/password or API tokens:
+
+**Option 1: Username/Password**
+```yaml
+secrets:
+  PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}  # Your PyPI username
+  PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # Your PyPI password
+```
+
+**Option 2: API Token (Recommended)**
+```yaml
+secrets:
+  PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}  # Set to "__token__"
+  PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # Your API token
+```
+
+For API token usage:
+1. Create an API token at https://pypi.org/manage/account/token/
+2. Set `PYPI_USERNAME` to `__token__`
+3. Set `PYPI_PASSWORD` to your API token
+
 ---
 
 ## Artifacts
 
 Depending on which workflows are enabled, the CI run may upload the following artifacts:
 
-- `dist/` — built package distributions
-- `pylint-report/` — Pylint output (text, HTML, badge)
-- `ruff-report/` — Ruff output (text, HTML, badge)
+- `build/` — build status badge
+- `dist/` — built package distributions (from release workflow)
+- `pylint/` — Pylint output (text, HTML, badge)
+- `ruff/` — Ruff output (text, HTML, badge)
 - `docs/` — Sphinx HTML documentation
+- `coverage/` — Coverage reports and badges
 
 ---

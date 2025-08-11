@@ -37,7 +37,10 @@ on:
         required: false
         type: boolean
         default: false
-
+      PYPI_RELEASE:
+        required: false
+        type: boolean
+        default: false
 
       PYTHON_VERSION:
         required: true
@@ -122,16 +125,25 @@ on:
         required: false
         type: boolean
         default: false
+
+      PYTHON_VERSION_NAME:
+        required: false
+        type: string
+        default: "__version__"
     secrets:
       GH_TOKEN:
         required: false
       GITLAB_TOKEN:
         required: false
+      PYPI_USERNAME:
+        required: false
+      PYPI_PASSWORD:
+        required: false
 
 jobs:
   build:
     if: ${{inputs.BUILD_PACKAGE}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/build.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/build.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       USE_UV: ${{inputs.USE_UV}}
@@ -141,14 +153,14 @@ jobs:
 
   pylint:
     if: ${{inputs.USE_PYLINT}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/pylint.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/pylint.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
 
   tests:
     if: ${{inputs.EXECUTE_TESTS}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@main
     with:
       PYTHON_TEST_MATRIX: ${{inputs.PYTHON_TEST_MATRIX}}
       USE_UV: ${{inputs.USE_UV}}
@@ -159,7 +171,7 @@ jobs:
 
   coverage_test:
     if: ${{inputs.EXECUTE_COVERAGE_TEST}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/test-coverage.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/test-coverage.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       USE_UV: ${{inputs.USE_UV}}
@@ -173,14 +185,14 @@ jobs:
 
   ruff:
     if: ${{inputs.USE_RUFF}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/ruff.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/ruff.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
 
   sphinx_doc:
     if: ${{inputs.GENERATE_DOCUMENTATION}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/sphinx_doc.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/sphinx_doc.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       USE_UV: ${{inputs.USE_UV}}
@@ -197,7 +209,7 @@ jobs:
       - coverage_test
       - ruff
       - sphinx_doc
-    uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@main
     with:
       CONVERT_EXAMPLES: ${{inputs.CONVERT_EXAMPLES}}
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
@@ -219,13 +231,36 @@ jobs:
       - ruff
       - sphinx_doc
       - convert_examples
-    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
     with:
       USE_SEMANTIC_RELEASE: ${{inputs.USE_SEMANTIC_RELEASE}}
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       DIRECTORY: ${{inputs.DIRECTORY}}
       COMMIT_SUBJECT: ${{inputs.COMMIT_SUBJECT}}
     secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  pypi_release:
+    if: ${{ github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, 'PYPI-RELEASE') && inputs.PYPI_RELEASE }}
+    needs:
+      - build
+      - pylint
+      - tests
+      - coverage_test
+      - ruff
+      - sphinx_doc
+    uses: RWTH-EBC/ci_templates/.github/workflows/release.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+      PYTHON_VERSION_NAME: ${{inputs.PYTHON_VERSION_NAME}}
+      GIT_REPO: ${{inputs.GIT_REPO}}
+    secrets:
+      PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   gh_pages:
@@ -238,7 +273,7 @@ jobs:
       - ruff
       - sphinx_doc
       - convert_examples
-    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/github_pages.yml@main
     with:
       GH_PAGES: ${{inputs.GH_PAGES}}
       GH_PAGES_BRANCH: ${{inputs.GH_PAGES_BRANCH}}
