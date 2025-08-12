@@ -37,7 +37,7 @@ on:
       PYPI_PASSWORD:
         required: true
       GH_TOKEN:
-        required: false
+        required: true
 
 jobs:
   release:
@@ -66,7 +66,6 @@ jobs:
           pip install twine build
 
       - name: Install GitHub CLI
-        if: ${{ secrets.GH_TOKEN != '' }}
         run: |
           sudo apt-get update -y
           sudo apt-get install -y gh
@@ -111,7 +110,6 @@ jobs:
           fi
 
       - name: Create GitHub release
-        if: ${{ secrets.GH_TOKEN != '' }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
