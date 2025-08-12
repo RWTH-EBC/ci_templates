@@ -119,35 +119,15 @@ jobs:
           else
             echo "Creating release v${{ steps.version.outputs.version }}"
             gh release create "v${{ steps.version.outputs.version }}" \
-              --title "Release v${{ steps.version.outputs.version }}" \
+              --title "v${{ steps.version.outputs.version }}" \
               --generate-notes \
               dist/*
           fi
 
-      - name: Check if package version already exists on PyPI
-        run: |
-          PACKAGE_NAME="${{ inputs.PYTHON_PACKAGE_NAME }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          
-          # Check if this version already exists on PyPI
-          if pip index versions "$PACKAGE_NAME" | grep -q "$VERSION"; then
-            echo "Version $VERSION of $PACKAGE_NAME already exists on PyPI"
-            echo "SKIP_PYPI=true" >> $GITHUB_ENV
-          else
-            echo "Version $VERSION of $PACKAGE_NAME does not exist on PyPI, proceeding with upload"
-            echo "SKIP_PYPI=false" >> $GITHUB_ENV
-          fi
-
       - name: Upload to PyPI
-        if: env.SKIP_PYPI == 'false'
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           echo "Uploading to PyPI..."
           twine upload dist/*
-
-      - name: Skip PyPI upload
-        if: env.SKIP_PYPI == 'true'
-        run: |
-          echo "Skipping PyPI upload - version already exists"
