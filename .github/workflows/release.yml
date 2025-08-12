@@ -32,8 +32,6 @@ on:
         default: ""
 
     secrets:
-      PYPI_USERNAME:
-        required: true
       PYPI_PASSWORD:
         required: true
       GH_TOKEN:
@@ -126,7 +124,7 @@ jobs:
 
       - name: Upload to PyPI
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           echo "Uploading to PyPI..."
