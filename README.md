@@ -58,7 +58,6 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-      PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     with:
       PYTHON_VERSION: "3.13"
@@ -116,7 +115,6 @@ jobs:
 |------------------|----------|------------------------------------------------------------------|
 | `GH_TOKEN`       | false    | GitHub personal access token (required for releases and pages)  |
 | `GITLAB_TOKEN`   | false    | GitLab access token (required for example conversion)           |
-| `PYPI_USERNAME`  | false    | PyPI username (required for PyPI releases)                      |
 | `PYPI_PASSWORD`  | false    | PyPI password or API token (required for PyPI releases)         |
 
 ## Included Workflows
@@ -224,21 +222,18 @@ You can use either traditional username/password or API tokens:
 **Option 1: Username/Password**
 ```yaml
 secrets:
-  PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}  # Your PyPI username
   PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # Your PyPI password
 ```
 
 **Option 2: API Token (Recommended)**
 ```yaml
 secrets:
-  PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}  # Set to "__token__"
   PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # Your API token
 ```
 
 For API token usage:
 1. Create an API token at https://pypi.org/manage/account/token/
-2. Set `PYPI_USERNAME` to `__token__`
-3. Set `PYPI_PASSWORD` to your API token
+2. Set `PYPI_PASSWORD` to your API token
 
 ---
 

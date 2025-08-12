@@ -135,8 +135,7 @@ on:
         required: false
       GITLAB_TOKEN:
         required: false
-      PYPI_USERNAME:
-        required: false
+
       PYPI_PASSWORD:
         required: false
 
@@ -259,7 +258,6 @@ jobs:
       PYTHON_VERSION_NAME: ${{inputs.PYTHON_VERSION_NAME}}
       GIT_REPO: ${{inputs.GIT_REPO}}
     secrets:
-      PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
