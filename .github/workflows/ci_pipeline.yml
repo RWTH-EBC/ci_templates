@@ -157,7 +157,7 @@ jobs:
 
   tests:
     if: ${{inputs.EXECUTE_TESTS}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@main
+    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@13-bug-line-10-conditional-binary-operator-expected
     with:
       PYTHON_TEST_MATRIX: ${{inputs.PYTHON_TEST_MATRIX}}
       USE_UV: ${{inputs.USE_UV}}
@@ -228,7 +228,7 @@ jobs:
       - ruff
       - sphinx_doc
       - convert_examples
-    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@development
+    uses: RWTH-EBC/ci_templates/.github/workflows/semantic-release.yml@main
     with:
       USE_SEMANTIC_RELEASE: ${{inputs.USE_SEMANTIC_RELEASE}}
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
