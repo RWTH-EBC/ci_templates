@@ -157,7 +157,7 @@ jobs:
 
   tests:
     if: ${{inputs.EXECUTE_TESTS}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@13-bug-line-10-conditional-binary-operator-expected
+    uses: RWTH-EBC/ci_templates/.github/workflows/tests.yml@main
     with:
       PYTHON_TEST_MATRIX: ${{inputs.PYTHON_TEST_MATRIX}}
       USE_UV: ${{inputs.USE_UV}}
