@@ -128,4 +128,4 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           echo "Uploading to PyPI..."
-          twine upload dist/*
+          twine upload dist/* -u "$TWINE_USERNAME" -p "$TWINE_PASSWORD"
