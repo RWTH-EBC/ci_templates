@@ -20,8 +20,9 @@ on:
         type: string
         default: ""
       PYTHON_PACKAGE_NAME:
-        required: true
+        required: false  # Geändert von true zu false
         type: string
+        default: ""      # Hinzugefügt: leer wenn nicht gesetzt
       PYTHON_VERSION_NAME:
         required: false
         type: string
@@ -55,6 +56,19 @@ jobs:
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
+      - name: Determine Python package name
+        id: package-name
+        run: |
+          PACKAGE_NAME="${{ inputs.PYTHON_PACKAGE_NAME }}"
+          if [ -z "$PACKAGE_NAME" ]; then
+            PACKAGE_NAME=$(basename $GITHUB_REPOSITORY)
+            echo "Auto-detected package name from repository: $PACKAGE_NAME"
+          else
+            echo "Using provided package name: $PACKAGE_NAME"
+          fi
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+
       - name: Install project
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
@@ -79,30 +93,50 @@ jobs:
         id: version
         run: |
           FILE=$(echo dist/*.tar.gz)
+          echo "Installing package: $FILE"
           pip install "$FILE"
           
+          # Show what we're trying to import
+          echo "Attempting to import package: ${{ steps.package-name.outputs.package_name }}"
+          
           # Try to get version from the installed package
-          if python -c "import ${{ inputs.PYTHON_PACKAGE_NAME }}" 2>/dev/null; then
-            VERSION=$(python -c "import ${{ inputs.PYTHON_PACKAGE_NAME }}; print(getattr(${{ inputs.PYTHON_PACKAGE_NAME }}, '${{ inputs.PYTHON_VERSION_NAME }}', 'unknown'))")
+          if python -c "import ${{ steps.package-name.outputs.package_name }}" 2>/dev/null; then
+            echo "✓ Package import successful"
+            VERSION=$(python -c "import ${{ steps.package-name.outputs.package_name }}; print(getattr(${{ steps.package-name.outputs.package_name }}, '${{ inputs.PYTHON_VERSION_NAME }}', 'unknown'))")
             if [ "$VERSION" = "unknown" ]; then
               echo "Warning: Could not find version attribute '${{ inputs.PYTHON_VERSION_NAME }}' in package"
               # Fallback: try to extract version from setup.py or pyproject.toml
               if [ -f "setup.py" ]; then
                 VERSION=$(python setup.py --version 2>/dev/null || echo "0.0.0")
+                echo "Using version from setup.py: $VERSION"
               elif [ -f "pyproject.toml" ]; then
                 VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb')).get('project', {}).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")
+                echo "Using version from pyproject.toml: $VERSION"
               else
                 VERSION="0.0.0"
+                echo "Using fallback version: $VERSION"
               fi
+            else
+              echo "Found version attribute: $VERSION"
             fi
           else
-            echo "Error: Could not import package ${{ inputs.PYTHON_PACKAGE_NAME }}"
-            exit 1
+            echo "Could not import package ${{ steps.package-name.outputs.package_name }}"
+            # Fallback to setup.py/pyproject.toml
+            if [ -f "setup.py" ]; then
+              VERSION=$(python setup.py --version 2>/dev/null || echo "0.0.0")
+              echo "Fallback: Using version from setup.py: $VERSION"
+            elif [ -f "pyproject.toml" ]; then
+              VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb')).get('project', {}).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")
+              echo "Fallback: Using version from pyproject.toml: $VERSION"
+            else
+              echo "Error: Could not determine version"
+              exit 1
+            fi
           fi
           
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION"
+          echo "Final detected version: $VERSION"
 
       - name: Verify version is not empty
         run: |
