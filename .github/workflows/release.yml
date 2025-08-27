@@ -30,6 +30,10 @@ on:
         required: false
         type: string
         default: ""
+      PYPI_RELEASE:
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       PYPI_PASSWORD:
@@ -41,7 +45,7 @@ jobs:
   release:
     name: Build and Release
     runs-on: ubuntu-latest
-
+    if: ${{ contains(github.event.head_commit.message, 'PYPI-RELEASE') &&  success() && inputs.PYPI_RELEASE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

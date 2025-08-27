@@ -240,7 +240,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   pypi_release:
-    if: ${{always() && !failure() && contains(github.event.head_commit.message, 'PYPI-RELEASE') && inputs.PYPI_RELEASE }}
+    if: always()
     needs:
       - build
       - pylint
@@ -257,6 +257,7 @@ jobs:
       PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
       PYTHON_VERSION_NAME: ${{inputs.PYTHON_VERSION_NAME}}
       GIT_REPO: ${{inputs.GIT_REPO}}
+      PYPI_RELEASE: ${{inputs.PYPI_RELEASE}}
     secrets:
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
