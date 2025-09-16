@@ -91,9 +91,7 @@ jobs:
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [dymola]
     container:
-      # IMAGE NEEDED ON GITHUB
-      image: dymola2024
-#      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
       options: --user root
 
     steps:
