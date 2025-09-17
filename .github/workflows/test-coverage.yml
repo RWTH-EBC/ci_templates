@@ -87,16 +87,23 @@ jobs:
           retention-days: 1
 
   dymola_coverage:
-     # NEEDS A SELF HOSTED RUNNER WITH TAG
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [dymola]
     container:
-      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+      image: dymola-extended:latest
+      # image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker-extended:latest
       options: --user root
 
     steps:
+      - name: Verify Node.js installation
+        run: |
+          echo "Checking Node.js installation..."
+          which node || echo "Node.js nicht gefunden"
+          node --version || echo "Node.js Version nicht verfügbar"
+          ls -la /__e/ || echo "GitHub Actions Node Pfade nicht gefunden"
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Start Xvfb and set up Conda
         run: |
@@ -132,7 +139,7 @@ jobs:
           coverage-badge -o coverage/badge.svg
 
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage
