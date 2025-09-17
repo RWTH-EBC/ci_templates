@@ -97,6 +97,14 @@ jobs:
       - name: Build Dymola container with Node.js support
         run: |
           echo "Building temporary Dymola container with Node.js support..."
+          
+          # Fix Docker permissions
+          sudo chown -R runner:runner /home/runner/.docker || true
+          mkdir -p /home/runner/.docker/buildx || true
+          
+          # Use legacy Docker build (not buildx)
+          export DOCKER_BUILDKIT=0
+          
           cat > Dockerfile.dymola-temp <<'EOF'
           FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
           
@@ -131,7 +139,7 @@ jobs:
           RUN node --version && npm --version
           EOF
           
-          docker build -f Dockerfile.dymola-temp -t dymola-with-nodejs:latest .
+          docker build --no-cache -f Dockerfile.dymola-temp -t dymola-with-nodejs:latest .
           
           # Verify build
           docker run --rm dymola-with-nodejs:latest node --version
