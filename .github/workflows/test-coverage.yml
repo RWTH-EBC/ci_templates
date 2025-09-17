@@ -90,11 +90,27 @@ jobs:
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [dymola]
     container:
-      # Use image from local registry
       image: localhost:5000/dymola-extended:latest
       options: --user root
 
     steps:
+      - name: Verify container environment
+        run: |
+          echo "=== Container Environment Verification ==="
+          echo "Node.js Version: $(node --version 2>/dev/null || echo 'Not found')"
+          echo "NPM Version: $(npm --version 2>/dev/null || echo 'Not found')"
+          echo "Git Version: $(git --version 2>/dev/null || echo 'Not found')"
+          echo "Python Version: $(python --version 2>/dev/null || echo 'Not found')"
+          echo "Conda Version: $(conda --version 2>/dev/null || echo 'Not found')"
+          
+          echo "GitHub Actions Node paths:"
+          ls -la /__e/ 2>/dev/null || echo "No /__e/ directory found"
+          
+          echo ""
+          echo "Current working directory: $(pwd)"
+          echo "Current user: $(whoami)"
+          echo "========================================="
+
       - name: Checkout
         uses: actions/checkout@v5
 
