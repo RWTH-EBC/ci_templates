@@ -91,57 +91,92 @@ jobs:
     runs-on: [dymola]
     container:
       image: localhost:5000/dymola-extended:latest
-      options: --user root
+      options: >-
+        --user root
+        --workdir /github/workspace
+        --env HOME=/root
+        --env GITHUB_WORKSPACE=/github/workspace
+        --env GITHUB_REPOSITORY_OWNER
+        --env GITHUB_REPOSITORY
+        --env GITHUB_RUN_ID
+        --env GITHUB_RUN_NUMBER
+        --env GITHUB_RETENTION_DAYS
+        --env GITHUB_RUN_ATTEMPT
+        --env GITHUB_REF_NAME
+        --env GITHUB_REF
+        --env GITHUB_SHA
+        --env GITHUB_ACTOR
+        --env GITHUB_TRIGGERING_ACTOR
+        --env GITHUB_WORKFLOW
+        --env GITHUB_HEAD_REF
+        --env GITHUB_BASE_REF
+        --env GITHUB_EVENT_NAME
+        --env GITHUB_SERVER_URL
+        --env GITHUB_API_URL
+        --env GITHUB_GRAPHQL_URL
+        --env GITHUB_REF_TYPE
+        --env GITHUB_JOB
+        --env GITHUB_ACTION
+        --env GITHUB_ACTION_REPOSITORY
+        --env GITHUB_ACTION_REF
+        --env GITHUB_PATH
+        --env GITHUB_ENV
+        --env GITHUB_STEP_SUMMARY
+        --env GITHUB_STATE
+        --env GITHUB_OUTPUT
+      volumes:
+        - /github/workspace:/github/workspace
+        - /github/home:/github/home
+        - /github/workflow:/github/workflow
 
     steps:
-      - name: Verify container environment
+      - name: Verify container startup
         run: |
-          echo "=== Container Environment Verification ==="
-          echo "Node.js Version: $(node --version 2>/dev/null || echo 'Not found')"
-          echo "NPM Version: $(npm --version 2>/dev/null || echo 'Not found')"
-          echo "Git Version: $(git --version 2>/dev/null || echo 'Not found')"
-          echo "Python Version: $(python --version 2>/dev/null || echo 'Not found')"
-          echo "Conda Version: $(conda --version 2>/dev/null || echo 'Not found')"
-          
-          echo "GitHub Actions Node paths:"
-          ls -la /__e/ 2>/dev/null || echo "No /__e/ directory found"
-          
-          echo ""
-          echo "Current working directory: $(pwd)"
-          echo "Current user: $(whoami)"
-          echo "========================================="
+          echo "Container started successfully"
+          echo "Working directory: $(pwd)"
+          echo "User: $(whoami)"
+          echo "Node.js: $(node --version || echo 'Not found')"
 
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Start Xvfb and setup display
+      - name: Start Xvfb
         run: |
-          echo "Starting Xvfb for headless operation..."
           Xvfb :77 -extension RANDR -extension GLX &
           export DISPLAY=:77.0
           echo "DISPLAY=:77.0" >> $GITHUB_ENV
 
       - name: Setup Conda environment
         run: |
-          echo "Setting up Python environment with Conda..."
-          source /opt/conda/etc/profile.d/conda.sh || echo "Warning: Conda profile not found"
-          
+          source /opt/conda/etc/profile.d/conda.sh
           PY_VER=$(echo "${{ inputs.PYTHON_VERSION }}" | grep -oE '[0-9]+\.[0-9]+')
-          echo "Creating Conda environment with Python $PY_VER"
-          
           conda create -n pyCITest python=$PY_VER -y
           conda activate pyCITest
-          
-          echo "Python environment ready:"
-          python --version
-          which python
+          echo "conda activate pyCITest" >> $GITHUB_ENV
 
       - name: Install Project and Requirements
-        uses: RWTH-EBC/ci_templates/.github/actions/install@main
-        with:
-          use-uv: ${{ inputs.USE_UV }}
-          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
-          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
+        run: |
+          source /opt/conda/etc/profile.d/conda.sh
+          conda activate pyCITest
+        env:
+          USE_UV: ${{ inputs.USE_UV }}
+          INSTALL_REQUIREMENTS: ${{ inputs.INSTALL_REQUIREMENTS }}
+          EXTRA_REQUIREMENTS: ${{ inputs.EXTRA_REQUIREMENTS }}
+
+      - name: Install dependencies manually
+        run: |
+          source /opt/conda/etc/profile.d/conda.sh
+          conda activate pyCITest
+          
+          # Install requirements if file exists
+          if [ "${{ inputs.INSTALL_REQUIREMENTS }}" = "true" ] && [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          
+          # Install local package if setup files exist
+          if [ -f setup.py ] || [ -f pyproject.toml ]; then
+            pip install -e .${{ inputs.EXTRA_REQUIREMENTS }}
+          fi
 
       - name: Install test dependencies
         run: |
@@ -156,25 +191,18 @@ jobs:
           export DISPLAY=:77.0
           
           if [ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]; then
-            echo "Running pytest with coverage..."
             coverage run -m pytest ${{ inputs.TEST_PATH }}/
           else
-            echo "Running unittest with coverage..."
             coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ "test_*.py"
           fi
 
-      - name: Generate coverage report and badge
+      - name: Generate coverage report
         run: |
           source /opt/conda/etc/profile.d/conda.sh
           conda activate pyCITest
-          
-          echo "Generating coverage reports..."
           mkdir -p coverage
           coverage html -d coverage
           coverage-badge -o coverage/badge.svg
-          
-          echo "Coverage report generated successfully"
-          ls -la coverage/
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
