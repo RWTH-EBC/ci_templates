@@ -91,35 +91,13 @@ jobs:
     runs-on: [dymola]
     container:
       image: localhost:5000/dymola-extended:latest
-      options: >-
+      options:
         --user root
         --privileged
-        --volume /tmp/.X11-unix:/tmp/.X11-unix:rw
-        --volume /dev/shm:/dev/shm
       env:
         DISPLAY: ":77.0"
 
     steps:
-      - name: Setup container environment
-        shell: bash
-        run: |
-          echo "Setting up container environment"
-          
-          # Create necessary directories
-          mkdir -p /github/workspace
-          mkdir -p /github/workflow  
-          mkdir -p /__w/_temp
-          
-          # Setup display
-          Xvfb :77 -extension RANDR -extension GLX &
-          export DISPLAY=:77.0
-          
-          # Verify environment
-          echo "Environment verification:"
-          echo "Node.js: $(node --version)"
-          echo "Working directory: $(pwd)"
-          echo "User: $(whoami)"
-
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -128,7 +106,6 @@ jobs:
         run: |
           echo "Setting up Python environment with Conda"
           source /opt/conda/etc/profile.d/conda.sh
-          
           PY_VER=$(echo "${{ inputs.PYTHON_VERSION }}" | grep -oE '[0-9]+\.[0-9]+')
           echo "Creating environment with Python $PY_VER"
           
