@@ -90,14 +90,13 @@ jobs:
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [dymola]
     container:
-      image: localhost:5000/dymola-extended:latest
+      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
       options:
         --user root
-        --privileged
-      env:
-        DISPLAY: ":77.0"
-
     steps:
+      - name: Setup Node
+        uses: actions/setup-node@v5
+
       - name: Checkout
         uses: actions/checkout@v5
 
