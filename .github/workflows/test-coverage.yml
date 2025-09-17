@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
@@ -89,54 +89,109 @@ jobs:
   dymola_coverage:
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [dymola]
-    container:
-      image: dymola-extended:latest
-      # image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker-extended:latest
-      options: --user root
 
     steps:
-      - name: Verify Node.js installation
-        run: |
-          echo "Checking Node.js installation..."
-          which node || echo "Node.js nicht gefunden"
-          node --version || echo "Node.js Version nicht verfügbar"
-          ls -la /__e/ || echo "GitHub Actions Node Pfade nicht gefunden"
-
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Start Xvfb and set up Conda
+      - name: Build Dymola container with Node.js support
         run: |
-          Xvfb :77 -extension RANDR -extension GLX &
-          export DISPLAY=:77.0
-          PY_VER=$(echo "${{ inputs.PYTHON_VERSION }}" | grep -oE '[0-9]+\.[0-9]+')
-          conda create -n pyCITest python=$PY_VER -y
-          echo "source activate pyCITest" >> $GITHUB_ENV
+          echo "Building temporary Dymola container with Node.js support..."
+          cat > Dockerfile.dymola-temp <<'EOF'
+          FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+          
+          USER root
+          
+          # Update and install Node.js dependencies
+          RUN apt-get update && apt-get install -y \
+              curl \
+              ca-certificates \
+              gnupg \
+              lsb-release \
+              git \
+              jq
+          
+          # Install Node.js 20 LTS
+          RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+              apt-get install -y nodejs
+          
+          # Create GitHub Actions Node.js paths
+          RUN mkdir -p /__e/node20/bin && \
+              ln -sf /usr/bin/node /__e/node20/bin/node && \
+              ln -sf /usr/bin/npm /__e/node20/bin/npm
+          
+          RUN mkdir -p /__e/node24/bin && \
+              ln -sf /usr/bin/node /__e/node24/bin/node && \
+              ln -sf /usr/bin/npm /__e/node24/bin/npm
+          
+          # Clean up
+          RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+          
+          # Verify installation
+          RUN node --version && npm --version
+          EOF
+          
+          docker build -f Dockerfile.dymola-temp -t dymola-with-nodejs:latest .
+          
+          # Verify build
+          docker run --rm dymola-with-nodejs:latest node --version
 
-      - name: Install Project and Requirements
-        uses: RWTH-EBC/ci_templates/.github/actions/install@main
-        with:
-          use-uv: ${{ inputs.USE_UV }}
-          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
-          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
-
-      - name: Install test dependencies
+      - name: Start Xvfb in background
         run: |
-          pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
+          docker run -d --name xvfb-server \
+            -v /tmp/.X11-unix:/tmp/.X11-unix \
+            dymola-with-nodejs:latest \
+            bash -c "Xvfb :77 -extension RANDR -extension GLX && sleep infinity"
 
-      - name: Run tests with coverage
+      - name: Setup Python environment and run tests
         run: |
-          if [ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]; then
-            coverage run -m pytest ${{ inputs.TEST_PATH }}/
-          else
-            coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ "test_*.py"
-          fi
+          echo "Running tests in Dymola container..."
+          docker run --rm \
+            --volumes-from xvfb-server \
+            -v $(pwd):/workspace \
+            -v ~/github-runner/_work:/workspace/_work \
+            -e DISPLAY=:77.0 \
+            -w /workspace \
+            dymola-with-nodejs:latest \
+            bash -c "
+              # Setup Conda environment
+              source /opt/conda/etc/profile.d/conda.sh
+              PY_VER=\$(echo '${{ inputs.PYTHON_VERSION }}' | grep -oE '[0-9]+\.[0-9]+')
+              conda create -n pyCITest python=\$PY_VER -y
+              conda activate pyCITest
+              
+              # Install requirements if needed
+              if [ '${{ inputs.INSTALL_REQUIREMENTS }}' = 'true' ] && [ -f requirements.txt ]; then
+                pip install -r requirements.txt
+              fi
+              
+              # Install package with extra requirements
+              if [ -f setup.py ] || [ -f pyproject.toml ]; then
+                pip install -e .${{ inputs.EXTRA_REQUIREMENTS }}
+              fi
+              
+              # Install test dependencies
+              pip install 'coverage<7.5.0' 'coverage-badge<=1.1.0' pytest
+              
+              # Run tests with coverage
+              if [ '${{ inputs.TEST_ENGINE }}' = 'PYTEST' ]; then
+                coverage run -m pytest ${{ inputs.TEST_PATH }}/
+              else
+                coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ 'test_*.py'
+              fi
+              
+              # Generate reports
+              mkdir -p coverage
+              coverage html -d coverage
+              coverage-badge -o coverage/badge.svg
+            "
 
-      - name: Generate coverage report and badge
+      - name: Cleanup containers
+        if: always()
         run: |
-          mkdir -p coverage
-          coverage html -d coverage
-          coverage-badge -o coverage/badge.svg
+          docker stop xvfb-server || true
+          docker rm xvfb-server || true
+          docker rmi dymola-with-nodejs:latest || true
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
