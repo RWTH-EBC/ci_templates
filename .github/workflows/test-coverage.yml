@@ -88,7 +88,7 @@ jobs:
 
   dymola_coverage:
     if: ${{ inputs.USE_DYMOLA }}
-    runs-on: [dymola]
+    runs-on: [ dymola ]
     container:
       image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
       options:
@@ -99,73 +99,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup Python environment
-        shell: bash
+      - name: Start Xvfb and set up Conda
         run: |
-          echo "Setting up Python environment with Conda"
-          source /opt/conda/etc/profile.d/conda.sh
+          Xvfb :77 -extension RANDR -extension GLX &
+          export DISPLAY=:77.0
           PY_VER=$(echo "${{ inputs.PYTHON_VERSION }}" | grep -oE '[0-9]+\.[0-9]+')
-          echo "Creating environment with Python $PY_VER"
-          
           conda create -n pyCITest python=$PY_VER -y
-          conda activate pyCITest
-          
-          echo "Python environment ready:"
-          python --version
-          which python
+          echo "source activate pyCITest" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        shell: bash
+      - name: Install Project and Requirements
+        uses: RWTH-EBC/ci_templates/.github/actions/install@main
+        with:
+          use-uv: ${{ inputs.USE_UV }}
+          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
+          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
+
+      - name: Install test dependencies
         run: |
-          source /opt/conda/etc/profile.d/conda.sh
-          conda activate pyCITest
-          
-          # Install project requirements
-          if [ -f requirements.txt ] && [ "${{ inputs.INSTALL_REQUIREMENTS }}" == "true" ]; then
-            echo "Installing requirements.txt"
-            pip install -r requirements.txt
-          fi
-          
-          # Install project in editable mode
-          if [ -f setup.py ] || [ -f pyproject.toml ]; then
-            echo "Installing project"
-            pip install -e .${{ inputs.EXTRA_REQUIREMENTS }}
-          fi
-          
-          # Install test dependencies
-          echo "Installing test dependencies"
           pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
 
-      - name: Run coverage tests
-        shell: bash
+      - name: Run tests with coverage
         run: |
-          source /opt/conda/etc/profile.d/conda.sh
-          conda activate pyCITest
-          export DISPLAY=:77.0
-          
-          echo "Running tests with coverage"
-          
           if [ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]; then
-            echo "Using pytest"
-            coverage run -m pytest ${{ inputs.TEST_PATH }}/ || echo "Tests completed with issues"
+            coverage run -m pytest ${{ inputs.TEST_PATH }}/
           else
-            echo "Using unittest"
-            coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ "test_*.py" || echo "Tests completed with issues"
+            coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ "test_*.py"
           fi
 
-      - name: Generate coverage reports
-        shell: bash
+      - name: Generate coverage report and badge
         run: |
-          source /opt/conda/etc/profile.d/conda.sh
-          conda activate pyCITest
-          
-          echo "Generating coverage reports"
           mkdir -p coverage
           coverage html -d coverage
           coverage-badge -o coverage/badge.svg
-          
-          echo "Coverage files generated:"
-          ls -la coverage/
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
