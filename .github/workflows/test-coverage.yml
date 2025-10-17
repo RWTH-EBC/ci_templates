@@ -105,21 +105,33 @@ jobs:
           export DISPLAY=:77.0
           PY_VER=$(echo "${{ inputs.PYTHON_VERSION }}" | grep -oE '[0-9]+\.[0-9]+')
           conda create -n pyCITest python=$PY_VER -y
-          echo "source activate pyCITest" >> $GITHUB_ENV
+          echo "CONDA_ENV=pyCITest" >> $GITHUB_ENV
 
       - name: Install Project and Requirements
-        uses: RWTH-EBC/ci_templates/.github/actions/install@main
-        with:
-          use-uv: ${{ inputs.USE_UV }}
-          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
-          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
+        run: |
+          source activate $CONDA_ENV
+          pip install --upgrade pip
+          if [[ "${{ inputs.use-uv }}" == "true" ]]; then
+            pip install uv
+            export INSTALL_CMD="uv pip install --system"
+          else
+            export INSTALL_CMD="pip install"
+          fi
+          if [[ "${{ inputs.install-requirements }}" == "true" ]] && [ -f requirements.txt ]; then
+            $INSTALL_CMD -r requirements.txt
+          fi
+          if [ -f setup.py ] || [ -f pyproject.toml ]; then
+            $INSTALL_CMD -e .${{ inputs.extra-requirements }}
+          fi
 
       - name: Install test dependencies
         run: |
+          source activate $CONDA_ENV
           pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
 
       - name: Run tests with coverage
         run: |
+          source activate $CONDA_ENV
           if [ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]; then
             coverage run -m pytest ${{ inputs.TEST_PATH }}/
           else
@@ -128,6 +140,7 @@ jobs:
 
       - name: Generate coverage report and badge
         run: |
+          source activate $CONDA_ENV
           mkdir -p coverage
           coverage html -d coverage
           coverage-badge -o coverage/badge.svg
