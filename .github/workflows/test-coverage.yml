@@ -100,6 +100,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Start Xvfb and set up Conda
+        shell: bash
         run: |
           Xvfb :77 -extension RANDR -extension GLX &
           export DISPLAY=:77.0
@@ -108,28 +109,31 @@ jobs:
           echo "CONDA_ENV=pyCITest" >> $GITHUB_ENV
 
       - name: Install Project and Requirements
+        shell: bash
         run: |
           source activate $CONDA_ENV
           pip install --upgrade pip
-          if [[ "${{ inputs.use-uv }}" == "true" ]]; then
+          if [[ "${{ inputs.USE_UV }}" == "true" ]]; then
             pip install uv
             export INSTALL_CMD="uv pip install --system"
           else
             export INSTALL_CMD="pip install"
           fi
-          if [[ "${{ inputs.install-requirements }}" == "true" ]] && [ -f requirements.txt ]; then
+          if [[ "${{ inputs.INSTALL_REQUIREMENTS }}" == "true" ]] && [ -f requirements.txt ]; then
             $INSTALL_CMD -r requirements.txt
           fi
           if [ -f setup.py ] || [ -f pyproject.toml ]; then
-            $INSTALL_CMD -e .${{ inputs.extra-requirements }}
+            $INSTALL_CMD -e .${{ inputs.EXTRA_REQUIREMENTS }}
           fi
 
       - name: Install test dependencies
+        shell: bash
         run: |
           source activate $CONDA_ENV
           pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
 
       - name: Run tests with coverage
+        shell: bash
         run: |
           source activate $CONDA_ENV
           if [ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]; then
@@ -139,6 +143,7 @@ jobs:
           fi
 
       - name: Generate coverage report and badge
+        shell: bash
         run: |
           source activate $CONDA_ENV
           mkdir -p coverage
