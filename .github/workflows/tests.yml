@@ -27,11 +27,16 @@ on:
         required: false
         type: string
         default: ""
+      FAIL-FAST:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: ${{ inputs.FAIL-FAST }}
       matrix:
         python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
 
