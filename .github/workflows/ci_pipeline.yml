@@ -83,6 +83,10 @@ on:
         required: false
         type: boolean
         default: false
+      FAIL-FAST:
+        required: false
+        type: boolean
+        default: false
 
       DIRECTORY:
         required: false
@@ -167,6 +171,7 @@ jobs:
       EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
       TEST_ENGINE: ${{inputs.TEST_ENGINE}}
       TEST_PATH: ${{inputs.TEST_PATH}}
+      FAIL-FAST: ${{inputs.FAIL-FAST}}
 
   coverage_test:
     if: ${{inputs.EXECUTE_COVERAGE_TEST}}
