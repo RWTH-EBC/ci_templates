@@ -29,7 +29,7 @@ services:
     ports:
        - "1026:1026"
     networks:
-       - filip
+       - fiware
     depends_on:
        - mongo-db
     environment:
@@ -55,7 +55,7 @@ services:
     container_name: "mongo-db"
     restart: always
     networks:
-        - filip
+        - fiware
     volumes:
       - mongo-db:/data/db
     logging: *logging-low
@@ -68,7 +68,7 @@ services:
     ports:
       - "4041:4041"
     networks:
-      - filip
+      - fiware
     depends_on:
       - mongo-db
     environment:
@@ -101,7 +101,7 @@ services:
     image: fiware/iotagent-ul:1.23.0
     hostname: iot-agent-ul
     networks:
-      - filip
+      - fiware
     ports:
       - "4061:4061"
     environment:
@@ -131,7 +131,7 @@ services:
     ports:
         - "1883:1883"
     networks:
-        - filip
+        - fiware
     volumes:
         - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 
@@ -143,7 +143,7 @@ services:
     ports:
       - "8668:8668"
     networks:
-      - filip
+      - fiware
     depends_on:
       - orion
       - crate
@@ -165,7 +165,7 @@ services:
     ports:
       - "4200:4200"
     networks:
-        - filip
+        - fiware
     volumes:
       - crate:/data
     environment:
@@ -183,7 +183,7 @@ services:
     ports:
        - "1027:1026"
     networks:
-        - filip
+        - fiware
     depends_on:
         - mongo-db
     command: -experimental
