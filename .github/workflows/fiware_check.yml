@@ -18,7 +18,7 @@ jobs:
         uses: RWTH-EBC/ci_templates/.github/actions/fiware@17-add-fiware-setup-workflow
         with:
           # Directory containing your docker-compose.yml
-          working-directory: ./utils/fiware
+          fiware-directory: ./utils/fiware
 
 #          # Variables to inject into the .env file
 #          env-variables: |

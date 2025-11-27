@@ -1,7 +1,7 @@
 name: 'Setup FIWARE Services'
 description: 'Creates .env file, starts Docker Compose, and waits for services to be ready'
 inputs:
-  working-directory:
+  fiware-directory:
     description: 'Path to the directory containing docker-compose.yml'
     required: false
     default: '.'
@@ -26,7 +26,7 @@ runs:
 #    - name: Create .env file
 #      shell: bash
 #      run: |
-#        TARGET_DIR="${{ inputs.working-directory }}"
+#        TARGET_DIR="${{ inputs.fiware-directory }}"
 #        echo "Creating .env file in $TARGET_DIR"
 #
 #        # Ensure directory exists
@@ -42,7 +42,7 @@ runs:
     # Step 2: Start Services
     - name: Start FIWARE Services
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
+      fiware-directory: ${{ inputs.fiware-directory }}
       run: |
         echo "Starting Docker Compose..."
         docker compose up -d
@@ -84,7 +84,7 @@ runs:
         echo "Timeout reached ($TIMEOUT s). Services failed to start."
         
         # Debug output on failure
-        cd ${{ inputs.working-directory }}
+        cd ${{ inputs.fiware-directory }}
         docker compose ps
         docker compose logs --tail=50
         exit 1
