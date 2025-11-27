@@ -42,7 +42,7 @@ runs:
     # Step 2: Start Services
     - name: Start FIWARE Services
       shell: bash
-      fiware-directory: ${{ inputs.fiware-directory }}
+      working-directory: ${{ inputs.fiware-directory }}
       run: |
         echo "Starting Docker Compose..."
         docker compose up -d
