@@ -92,26 +92,22 @@ jobs:
 
       # 4. setup python
       - name: Set up Python ${{ matrix.python-version }}
-        if: steps.skip.outputs.skip == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       # 5. install dependencies
       - name: Install project
-        if: steps.skip.outputs.skip == 'false'
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
           use-uv: ${{ inputs.USE_UV }}
           install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
           extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
       - name: Install test dependencies
-        if: steps.skip.outputs.skip == 'false'
         run: pip install pytest
 
       # 6. run tests
       - name: Run tests
-        if: steps.skip.outputs.skip == 'false'
         run: |
           if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
             python -m pytest ${{ inputs.TEST_PATH }}
