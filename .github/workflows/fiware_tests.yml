@@ -1,0 +1,120 @@
+name: FIWARE test setup
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_TEST_MATRIX:
+        required: false
+        type: string
+        default: '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'
+      TEST_PATH:
+        required: false
+        type: string
+        default: "tests"
+      TEST_ENGINE:
+        required: false
+        type: string
+        default: "PYTEST"
+      INSTALL_REQUIREMENTS:
+        required: false
+        type: boolean
+        default: true
+      USE_UV:
+        required: false
+        type: boolean
+        default: false
+      EXTRA_REQUIREMENTS:
+        required: false
+        type: string
+        default: ""
+      FAIL-FAST:
+        required: false
+        type: boolean
+        default: false
+      FIWARE_DIRECTORY:
+        description: Directory containing the docker-compose.yml for FIWARE setup
+        required: true
+        type: string
+        default: "./utils/fiware"
+
+jobs:
+  fiware_tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: ${{ inputs.FAIL-FAST }}
+      matrix:
+        python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
+    steps:
+      # 1. Checkout the repository so the action and docker-compose files are available
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Run the reusable FIWARE action
+      # 'uses: ./.github/actions/setup-fiware' points to the local folder containing action.yml
+      - name: Setup FIWARE Stack
+        uses: RWTH-EBC/ci_templates/.github/actions/fiware@17-add-fiware-setup-workflow
+        with:
+          # Directory containing your docker-compose.yml
+          fiware-directory: ${{ inputs.FIWARE_DIRECTORY }}
+
+          # List of URLs to check before proceeding
+          healthcheck-urls: >-
+            http://localhost:1026/version
+            http://localhost:4041/version
+
+          # Timeout in seconds
+          timeout-seconds: 60
+
+      # 3. Create environment for tests
+      - name: Create .env file
+        shell: bash
+        run: |
+          # Create such file
+          cat <<EOF > .env
+          LOG_LEVEL="INFO"
+          CB_URL=http://localhost:1026
+          ORION_LD_URL=http://localhost:1027
+          IOTA_JSON_URL=http://localhost:4041
+          IOTA_UL_URL=http://localhost:4061
+          QL_URL=http://localhost:8668
+          MQTT_BROKER_URL=mqtt://localhost:1883
+          MQTT_BROKER_URL_INTERNAL=mqtt://mqtt-broker:1883
+          LD_MQTT_BROKER_URL=mqtt://localhost:1883
+          LD_MQTT_BROKER_URL_INTERNAL=mqtt://mqtt-broker:1883
+          FIWARE_SERVICE=test
+          FIWARE_SERVICEPATH=/
+          STATIC_RECORDS=1000
+          EOF
+  
+          # Show content
+          echo "--- .env content preview ---"
+          cat .env
+
+      # 4. setup python
+      - name: Set up Python ${{ matrix.python-version }}
+        if: steps.skip.outputs.skip == 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 5. install dependencies
+      - name: Install project
+        if: steps.skip.outputs.skip == 'false'
+        uses: RWTH-EBC/ci_templates/.github/actions/install@main
+        with:
+          use-uv: ${{ inputs.USE_UV }}
+          install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
+          extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
+      - name: Install test dependencies
+        if: steps.skip.outputs.skip == 'false'
+        run: pip install pytest
+
+      # 6. run tests
+      - name: Run tests
+        if: steps.skip.outputs.skip == 'false'
+        run: |
+          if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
+            python -m pytest ${{ inputs.TEST_PATH }}
+          else
+            python -m unittest discover --verbose . "test_*.py"
+          fi

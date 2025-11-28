@@ -188,13 +188,13 @@ This CI workflow can trigger the following individual workflows:
 - Prevents duplicate releases (checks if version already exists on PyPI)
 - Supports both PyPI username/password and API token authentication
 
-### `fiware_check.yml`
+### `fiware_tests.yml`
 
-- This is an example workflow to use the FIWARE action to run FIWARE service, for example before running test against FIWARE
-- This action assumes that there is a `docker-compose.yml` resides in your project repository, separate from the action logic. A possible structure in your repository is:
+- Run unittests with FIWARE platform
+- It requires to provide `docker-compose.yml` resides in your project repository. A possible structure in your repository is:
 ```
 .
-├── .github/workflows/fiware_workflow.yml   <-- your workflow that uses the action
+├── .github/workflows/my_workflow.yml   <-- your workflow that uses the fiware_tests.yml
 ├── my_project
 │   └── docker/
 │       └── docker-compose.yml      <-- Your FIWARE configurations
@@ -203,11 +203,10 @@ This CI workflow can trigger the following individual workflows:
 ```
 - additional inputs:
 
-| Input             | Required   | Default                      | Description                                         |
-|-------------------|------------|------------------------------|-----------------------------------------------------|
-| fiware-directory  | No         | .                            | Directory containing docker-compose.yml.             |
-| healthcheck-urls  | No         | http://localhost:1026/version | Space-separated list of URLs to poll for readiness.  |
-| timeout-seconds   | No         | 120                          | Max time (in seconds) to wait for services to start. |
+| Input             | Required | Default                      | Description                                         |
+|-------------------|----------|------------------------------|-----------------------------------------------------|
+| FIWARE_DIRECTORY  | Yes      | .                            | Directory containing docker-compose.yml.            |
+
 
 ## PyPI Release Workflow
 
