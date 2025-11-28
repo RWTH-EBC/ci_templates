@@ -11,4 +11,4 @@ jobs:
       PYTHON_TEST_MATRIX: '["3.10", "3.11", "3.12", "3.13"]'
       FIWARE_DIRECTORY: "./utils/fiware"
       TEST_PATH: "./utils/fiware"
-      TEST_ENV_VARS: '["LOG_LEVEL=INFO", "CB_URL=http://localhost:1026", "ORION_LD_URL=http://localhost:1027", "IOTA_JSON_URL=http://localhost:4041", "IOTA_UL_URL=http://localhost:4061", "QL_URL=http://localhost:8668", "MQTT_BROKER_URL=mqtt://localhost:1883", "MQTT_BROKER_URL_INTERNAL=mqtt://mqtt-broker:1883", "LD_MQTT_BROKER_URL=mqtt://localhost:1883", "LD_MQTT_BROKER_URL_INTERNAL=mqtt://mqtt-broker:1883", "FIWARE_SERVICE=test", "FIWARE_SERVICEPATH=/", "STATIC_RECORDS=1000"]'
+      TEST_ENV_VARS: '["LOG_LEVEL=INFO", "CB_URL=http://localhost:1026", "ORION_LD_URL=http://localhost:1027", "IOTA_JSON_URL=http://localhost:4041", "IOTA_UL_URL=http://localhost:4061", "QL_URL=http://localhost:8668", "MQTT_BROKER_URL=mqtt://localhost:1883", "MQTT_BROKER_URL_INTERNAL=mqtt://mqtt-broker:1883", "LD_MQTT_BROKER_URL=mqtt://localhost:1883", "LD_MQTT_BROKER_URL_INTERNAL=mqtt://mqtt-broker:1883", "FIWARE_SERVICE=test_17", "STATIC_RECORDS=199"]'
