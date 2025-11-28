@@ -5,9 +5,6 @@ inputs:
     description: 'Path to the directory containing docker-compose.yml'
     required: false
     default: '.'
-  env-variables:
-    description: 'List of environment variables to write to .env file (KEY=VALUE format)'
-    required: true
   healthcheck-urls:
     description: 'Space-separated list of URLs to check for health status'
     required: false
@@ -20,26 +17,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # Step 1: Create .env file
-    # We take the multiline input string and write it directly to the file
-    # inside the specified working directory.
-#    - name: Create .env file
-#      shell: bash
-#      run: |
-#        TARGET_DIR="${{ inputs.fiware-directory }}"
-#        echo "Creating .env file in $TARGET_DIR"
-#
-#        # Ensure directory exists
-#        mkdir -p "$TARGET_DIR"
-#
-#        # Write the inputs to the file
-#        echo "${{ inputs.env-variables }}" > "$TARGET_DIR/.env"
-#
-#        # Debug: Show content (masking secrets in real usage if needed, but useful for debug)
-#        echo "--- .env content preview ---"
-#        cat "$TARGET_DIR/.env"
-
-    # Step 2: Start Services
+    # Start Services
     - name: Start FIWARE Services
       shell: bash
       working-directory: ${{ inputs.fiware-directory }}
@@ -47,7 +25,7 @@ runs:
         echo "Starting Docker Compose..."
         docker compose up -d
 
-    # Step 3: Wait for Services
+    # Wait for Services
     - name: Wait for Services to be Ready
       shell: bash
       run: |
