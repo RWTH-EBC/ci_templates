@@ -20,7 +20,7 @@ class TestHealthCheck(unittest.TestCase):
             url=settings.QL_URL, fiware_header=self.fiware_header
         )
 
-    def test_cb_health_check(self):
+    def test_fiware_health_check(self):
         cbv = self.cbc.get_version()
         print(cbv)
         iotv = self.iotac.get_version()

@@ -35,7 +35,6 @@ on:
         description: Directory containing the docker-compose.yml for FIWARE setup
         required: true
         type: string
-        default: "./utils/fiware"
       TEST_ENV_VARS:
         description: List of env vars, e.g. "['DEBUG=1', 'FOO=bar']"
         required: false
@@ -62,7 +61,7 @@ jobs:
       # 2. Run the reusable FIWARE action
       # 'uses: ./.github/actions/setup-fiware' points to the local folder containing action.yml
       - name: Setup FIWARE Stack
-        uses: RWTH-EBC/ci_templates/.github/actions/fiware@17-add-fiware-setup-workflow
+        uses: RWTH-EBC/ci_templates/.github/actions/fiware@main
         with:
           # Directory containing your docker-compose.yml
           fiware-directory: ${{ inputs.FIWARE_DIRECTORY }}
@@ -97,7 +96,7 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest
       - name: Install FiLiP (only for testing purposes)
-        if: ${{ inputs.INSTALL_FILIP}}
+        if: ${{ inputs.INSTALL_FILIP }}
         run: pip install filip~=0.7.3
 
       # 6. run tests

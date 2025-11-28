@@ -191,7 +191,7 @@ This CI workflow can trigger the following individual workflows:
 ### `fiware_tests.yml`
 - Run unittests with a FIWARE platform inside the CI job.
 - This workflow is NOT INCLUDED by default
-- It requires to provide `docker-compose.yml` resides in your project repository. A possible structure in your repository is:
+- It requires a `docker-compose.yml` that resides in your project repository. A possible structure in your repository is:
 ```
 .
 ├── .github/workflows/my_workflow.yml   <-- your workflow that uses the fiware_tests.yml
@@ -205,7 +205,7 @@ This CI workflow can trigger the following individual workflows:
 
 | Input              | Required | Default | Description                              |
 |--------------------|----------|---------|------------------------------------------|
-| FIWARE_DIRECTORY   | Yes      | .       | Directory containing docker-compose.yml. |
+| FIWARE_DIRECTORY   | Yes      |         | Directory containing docker-compose.yml. |
 | TEST_ENV_VARS      | No       | '[ ]'   | List of env vars needed for unittest     |
 - An example is provided in the [`.github/workflows/fiware_test_example.yml`](.github/workflows/fiware_test_example.yml)
 ## PyPI Release Workflow
