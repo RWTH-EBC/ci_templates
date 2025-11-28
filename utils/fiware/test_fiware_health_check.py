@@ -7,10 +7,10 @@ from filip.config import settings
 class TestHealthCheck(unittest.TestCase):
     def setUp(self) -> None:
         self.fiware_header = FiwareHeader(
-            service=settings.FIWARE_SERVICE, service_path=settings.FIWARE_SERVICEPATH
+            service=settings.FIWARE_SERVICE,
         )
         self.iotac = IoTAClient(
-            url=settings.IOTA_JSON_URL, fiware_header=self.fiware_header
+            url=settings.IOTA_URL, fiware_header=self.fiware_header
         )
 
         self.cbc = ContextBrokerClient(
