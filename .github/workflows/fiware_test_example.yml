@@ -1,8 +1,11 @@
-name: Test FIWARE Action
+name: Example FIWARE test workflow
 
 on:
   push:
-    branches: [ "17-add-fiware-setup-workflow" ]
+    paths:
+      - '.github/actions/fiware/**'
+      - '.github/workflows/fiware_test_example.yml'
+      - 'utils/fiware/**'
 
 jobs:
   fiware_tests:
