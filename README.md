@@ -189,8 +189,8 @@ This CI workflow can trigger the following individual workflows:
 - Supports both PyPI username/password and API token authentication
 
 ### `fiware_tests.yml`
-
-- Run unittests with FIWARE platform
+- Run unittests with a FIWARE platform inside the CI job.
+- This workflow is NOT INCLUDED by default
 - It requires to provide `docker-compose.yml` resides in your project repository. A possible structure in your repository is:
 ```
 .
@@ -201,13 +201,13 @@ This CI workflow can trigger the following individual workflows:
 │       └── mosquitto.conf          <-- Your FIWARE configurations
 
 ```
-- additional inputs:
+- Additional inputs:
 
-| Input             | Required | Default                      | Description                                         |
-|-------------------|----------|------------------------------|-----------------------------------------------------|
-| FIWARE_DIRECTORY  | Yes      | .                            | Directory containing docker-compose.yml.            |
-
-
+| Input              | Required | Default | Description                              |
+|--------------------|----------|---------|------------------------------------------|
+| FIWARE_DIRECTORY   | Yes      | .       | Directory containing docker-compose.yml. |
+| TEST_ENV_VARS      | No       | '[ ]'   | List of env vars needed for unittest     |
+- An example is provided in the [`.github/workflows/fiware_test_example.yml`](.github/workflows/fiware_test_example.yml)
 ## PyPI Release Workflow
 
 The PyPI release workflow has special trigger conditions to prevent accidental releases:
