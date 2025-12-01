@@ -39,6 +39,11 @@ on:
         required: false
         type: boolean
         default: false
+      TEST_ENV_VARS:
+        description: List of env vars, e.g. "['DEBUG=1', 'FOO=bar']"
+        required: false
+        type: string
+        default: '[]'
 
 jobs:
   coverage:
@@ -131,6 +136,13 @@ jobs:
         run: |
           source activate $CONDA_ENV
           pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
+
+      # Create environment for tests
+      - name: create env vars for tests
+        if: steps.skip.outputs.skip == 'false'
+        shell: bash
+        run: |
+          echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
 
       - name: Run tests with coverage
         shell: bash
