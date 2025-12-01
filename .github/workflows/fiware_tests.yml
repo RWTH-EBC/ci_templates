@@ -45,6 +45,11 @@ on:
         required: false
         type: boolean
         default: false
+      FILIP_VERSION:
+        description: Version of FiLiP to install
+        required: false
+        type: string
+        default: "0.7.3"
 
 jobs:
   fiware_tests:
@@ -97,7 +102,7 @@ jobs:
         run: pip install pytest
       - name: Install FiLiP (only for testing purposes)
         if: ${{ inputs.INSTALL_FILIP }}
-        run: pip install filip~=0.7.3
+        run: pip install filip~=${{ inputs.FILIP_VERSION }}
 
       # 6. run tests
       - name: Run tests

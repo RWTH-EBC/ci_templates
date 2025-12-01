@@ -188,26 +188,6 @@ This CI workflow can trigger the following individual workflows:
 - Prevents duplicate releases (checks if version already exists on PyPI)
 - Supports both PyPI username/password and API token authentication
 
-### `fiware_tests.yml`
-- Run unittests with a FIWARE platform inside the CI job.
-- This workflow is NOT INCLUDED by default
-- It requires a `docker-compose.yml` that resides in your project repository. A possible structure in your repository is:
-```
-.
-├── .github/workflows/my_workflow.yml   <-- your workflow that uses the fiware_tests.yml
-├── my_project
-│   └── docker/
-│       └── docker-compose.yml      <-- Your FIWARE configurations
-│       └── mosquitto.conf          <-- Your FIWARE configurations
-
-```
-- Additional inputs:
-
-| Input              | Required | Default | Description                              |
-|--------------------|----------|---------|------------------------------------------|
-| FIWARE_DIRECTORY   | Yes      |         | Directory containing docker-compose.yml. |
-| TEST_ENV_VARS      | No       | '[ ]'   | List of env vars needed for unittest     |
-- An example is provided in the [`.github/workflows/fiware_test_example.yml`](.github/workflows/fiware_test_example.yml)
 ## PyPI Release Workflow
 
 The PyPI release workflow has special trigger conditions to prevent accidental releases:
@@ -271,3 +251,36 @@ Depending on which workflows are enabled, the CI run may upload the following ar
 - `coverage/` — Coverage reports and badges
 
 ---
+
+## Special workflows
+There are some special workflows targeting very specific use-cases.
+They are not included by default and need to be explicitly imported in your workflow file.
+
+### `fiware_tests.yml`
+- Run unittests with a FIWARE platform inside the CI job.
+- This workflow is NOT INCLUDED by default
+- It requires a `docker-compose.yml` that resides in your project repository. A possible structure in your repository is:
+```
+.
+├── .github/workflows/my_workflow.yml   <-- your workflow that uses the fiware_tests.yml
+├── my_project
+│   └── docker/
+│       └── docker-compose.yml      <-- Your FIWARE configurations
+│       └── mosquitto.conf          <-- Your FIWARE configurations
+
+```
+- Inputs:
+
+| Input              | Required | Default | Description                              |
+|--------------------|----------|---------|------------------------------------------|
+| FIWARE_DIRECTORY   | Yes      |         | Directory containing docker-compose.yml. |
+| TEST_ENV_VARS      | No       | '[ ]'   | List of env vars needed for unittest     |
+| PYTHON_TEST_MATRIX | No       | '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]' | List of Python versions to run tests against as a matrix |
+| TEST_PATH          | No       | 'tests' | Path to test folder                      |
+| TEST_ENGINE        | No       | 'PYTEST'| Test runner engine (PYTEST, unittest, ...) |
+| INSTALL_REQUIREMENTS | No     | true    | Install from requirements.txt if it exists |
+| USE_UV             | No       | false   | Use uv instead of pip for installing dependencies |
+| EXTRA_REQUIREMENTS | No       | ''      | Extra requirements to pass to pip install (e.g. [dev]) |
+| FAIL-FAST          | No       | false   | If true and one of the jobs in the python test matrix fails, all other jobs are cancelled |
+
+- An example usage is provided in the [`.github/workflows/fiware_test_example.yml`](.github/workflows/fiware_test_example.yml) file.
