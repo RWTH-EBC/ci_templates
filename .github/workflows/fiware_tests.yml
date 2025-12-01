@@ -59,11 +59,11 @@ jobs:
       matrix:
         python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
     steps:
-      # 1. Checkout the repository so the action and docker-compose files are available
+      # Checkout the repository so the action and docker-compose files are available
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Run the reusable FIWARE action
+      # Run the reusable FIWARE action
       # 'uses: ./.github/actions/setup-fiware' points to the local folder containing action.yml
       - name: Setup FIWARE Stack
         uses: RWTH-EBC/ci_templates/.github/actions/fiware@main
@@ -79,19 +79,19 @@ jobs:
           # Timeout in seconds
           timeout-seconds: 60
 
-      # 3. Create environment for tests
+      # Create environment for tests
       - name: create env vars for tests
         shell: bash
         run: |
           echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
 
-      # 4. setup python
+      # setup python
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      # 5. install dependencies
+      # install dependencies
       - name: Install project
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
@@ -104,7 +104,7 @@ jobs:
         if: ${{ inputs.INSTALL_FILIP }}
         run: pip install filip~=${{ inputs.FILIP_VERSION }}
 
-      # 6. run tests
+      # run tests
       - name: Run tests
         run: |
           if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
