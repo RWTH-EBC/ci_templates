@@ -41,6 +41,14 @@ on:
         required: false
         type: boolean
         default: false
+      FIWARE_TESTS:
+        required: false
+        type: boolean
+        default: false
+      FIWARE_COVERAGE:
+        required: false
+        type: boolean
+        default: false
 
       PYTHON_VERSION:
         required: true
@@ -92,6 +100,11 @@ on:
         required: false
         type: string
         default: "."
+      FIWARE_DIRECTORY:
+        description: Directory containing the docker-compose.yml for FIWARE setup
+        required: false
+        type: string
+        default: ""
       COMMIT_SUBJECT:
         required: false
         type: string
@@ -134,6 +147,11 @@ on:
         required: false
         type: string
         default: "__version__"
+
+      TEST_ENV_VARS:
+        required: false
+        type: string
+        default: '[]'
     secrets:
       GH_TOKEN:
         required: false
@@ -172,6 +190,21 @@ jobs:
       TEST_ENGINE: ${{inputs.TEST_ENGINE}}
       TEST_PATH: ${{inputs.TEST_PATH}}
       FAIL-FAST: ${{inputs.FAIL-FAST}}
+      TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
+
+  fiware_tests:
+    if: ${{inputs.FIWARE_TESTS}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/fiware_tests.yml@main
+    with:
+      PYTHON_TEST_MATRIX: ${{inputs.PYTHON_TEST_MATRIX}}
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      TEST_ENGINE: ${{inputs.TEST_ENGINE}}
+      TEST_PATH: ${{inputs.TEST_PATH}}
+      FAIL-FAST: ${{inputs.FAIL-FAST}}
+      TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
+      FIWARE_DIRECTORY: ${{inputs.FIWARE_DIRECTORY}}
 
   coverage_test:
     if: ${{inputs.EXECUTE_COVERAGE_TEST}}
@@ -186,6 +219,22 @@ jobs:
       TEST_PATH: ${{inputs.TEST_PATH}}
       COVERAGE_TYPE: ${{inputs.COVERAGE_TYPE}}
       USE_DYMOLA: ${{ inputs.USE_DYMOLA }}
+      TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
+
+  fiware_coverage:
+    if: ${{inputs.FIWARE_COVERAGE}}
+    uses: RWTH-EBC/ci_templates/.github/workflows/fiware_coverage.yml@main
+    with:
+      PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
+      USE_UV: ${{inputs.USE_UV}}
+      INSTALL_REQUIREMENTS: ${{inputs.INSTALL_REQUIREMENTS}}
+      EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
+      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
+      TEST_ENGINE: ${{inputs.TEST_ENGINE}}
+      TEST_PATH: ${{inputs.TEST_PATH}}
+      COVERAGE_TYPE: ${{inputs.COVERAGE_TYPE}}
+      TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
+      FIWARE_DIRECTORY: ${{inputs.FIWARE_DIRECTORY}}
 
   ruff:
     if: ${{inputs.USE_RUFF}}

@@ -255,11 +255,11 @@ Depending on which workflows are enabled, the CI run may upload the following ar
 
 ## Special workflows
 There are some special workflows targeting very specific use-cases.
-They are not included by default and need to be explicitly imported in your workflow file.
+They require additional inputs or setup in your repository.
 
 ### `fiware_tests.yml`
-- Run unittests with a FIWARE platform inside the CI job.
-- This workflow is NOT INCLUDED by default
+- This workflow is NOT INCLUDED by default, set ``FIWARE_TESTS`` to true to enable this workflow.
+- It set up a FIWARE platform inside the CI job before running the unit tests.
 - It requires a `docker-compose.yml` that resides in your project repository. A possible structure in your repository is:
 ```
 .
@@ -270,18 +270,21 @@ They are not included by default and need to be explicitly imported in your work
 │       └── mosquitto.conf          <-- Your FIWARE configurations
 
 ```
-- Inputs:
+- Additional Inputs:
 
 | Input              | Required | Default | Description                              |
 |--------------------|----------|---------|------------------------------------------|
 | FIWARE_DIRECTORY   | Yes      |         | Directory containing docker-compose.yml. |
-| TEST_ENV_VARS      | No       | '[ ]'   | List of env vars needed for unittest     |
-| PYTHON_TEST_MATRIX | No       | '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]' | List of Python versions to run tests against as a matrix |
-| TEST_PATH          | No       | 'tests' | Path to test folder                      |
-| TEST_ENGINE        | No       | 'PYTEST'| Test runner engine (PYTEST, unittest, ...) |
-| INSTALL_REQUIREMENTS | No     | true    | Install from requirements.txt if it exists |
-| USE_UV             | No       | false   | Use uv instead of pip for installing dependencies |
-| EXTRA_REQUIREMENTS | No       | ''      | Extra requirements to pass to pip install (e.g. [dev]) |
-| FAIL-FAST          | No       | false   | If true and one of the jobs in the python test matrix fails, all other jobs are cancelled |
 
 - An example usage is provided in the [`.github/workflows/fiware_test_example.yml`](.github/workflows/fiware_test_example.yml) file.
+
+### `fiware_coverage.yml`
+- This workflow runs coverage tests against your code while deploying the FIWARE platform using Docker Compose.
+- It is similar to `fiware_tests.yml`, but collects and uploads a coverage report and badge. A ``docker-compose.yml`` is also required in the same way as for `fiware_tests.yml`.
+- It is NOT INCLUDED by default, set ``FIWARE_COVERAGE`` to true to enable this workflow.
+- Additional Inputs:
+
+| Input              | Required | Default | Description                              |
+|--------------------|----------|---------|------------------------------------------|
+| FIWARE_DIRECTORY   | Yes      |         | Directory containing docker-compose.yml. |
+
