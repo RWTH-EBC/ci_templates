@@ -1,20 +1,28 @@
-name: FIWARE test setup
+name: FIWARE Coverage Tests
 
 on:
   workflow_call:
     inputs:
-      PYTHON_TEST_MATRIX:
-        required: false
+      PYTHON_VERSION:
+        required: true
         type: string
-        default: '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'
-      TEST_PATH:
-        required: false
-        type: string
-        default: "tests"
+        default: "3.10"
       TEST_ENGINE:
         required: false
         type: string
         default: "PYTEST"
+      TEST_PATH:
+        required: false
+        type: string
+        default: "tests"
+      COVERAGE_TYPE:
+        required: false
+        type: string
+        default: "default"
+      EXTRA_REQUIREMENTS:
+        required: false
+        type: string
+        default: ""
       INSTALL_REQUIREMENTS:
         required: false
         type: boolean
@@ -23,23 +31,19 @@ on:
         required: false
         type: boolean
         default: false
-      EXTRA_REQUIREMENTS:
+      PYTHON_PACKAGE_NAME:
         required: false
         type: string
         default: ""
-      FAIL-FAST:
-        required: false
-        type: boolean
-        default: false
-      FIWARE_DIRECTORY:
-        description: Directory containing the docker-compose.yml for FIWARE setup
-        required: true
-        type: string
       TEST_ENV_VARS:
         description: List of env vars, e.g. "['DEBUG=1', 'FOO=bar']"
         required: false
         type: string
         default: '[]'
+      FIWARE_DIRECTORY:
+        description: Directory containing the docker-compose.yml for FIWARE setup
+        required: true
+        type: string
       INSTALL_FILIP:
         description: Whether to install FiLiP for testing purposes
         required: false
@@ -52,18 +56,12 @@ on:
         default: "0.7.3"
 
 jobs:
-  fiware_tests:
+  fiware_coverage:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: ${{ inputs.FAIL-FAST }}
-      matrix:
-        python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
     steps:
-      # Checkout the repository so the action and docker-compose files are available
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Run the reusable FIWARE action
       - name: Setup FIWARE Stack
         uses: RWTH-EBC/ci_templates/.github/actions/fiware@main
         with:
@@ -73,36 +71,49 @@ jobs:
             http://localhost:4041/version
           timeout-seconds: 60
 
-      # Create environment for tests
-      - name: create env vars for tests
+      - name: Create env vars for tests
         shell: bash
         run: |
           echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
 
-      # setup python
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ inputs.PYTHON_VERSION }}
 
-      # install dependencies
-      - name: Install project
+      - name: Install Project and Requirements
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
           use-uv: ${{ inputs.USE_UV }}
           install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
           extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
+
       - name: Install test dependencies
-        run: pip install pytest
+        run: |
+          pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest setuptools
+
       - name: Install FiLiP (only for testing purposes)
         if: ${{ inputs.INSTALL_FILIP }}
         run: pip install filip~=${{ inputs.FILIP_VERSION }}
 
-      # run tests
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
-            python -m pytest ${{ inputs.TEST_PATH }}
+          if [ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]; then
+            coverage run -m pytest ${{ inputs.TEST_PATH }}/
           else
-            python -m unittest discover --verbose . "test_*.py"
+            coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ "test_*.py"
           fi
+
+      - name: Generate coverage report and badge
+        run: |
+          mkdir -p coverage
+          coverage html -d coverage
+          coverage-badge -o coverage/badge.svg
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 1
+
