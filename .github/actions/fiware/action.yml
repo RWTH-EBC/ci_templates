@@ -1,0 +1,68 @@
+name: 'Setup FIWARE Services'
+description: 'Starts Docker Compose and waits for services to be ready'
+inputs:
+  fiware-directory:
+    description: 'Path to the directory containing docker-compose.yml'
+    required: false
+    default: '.'
+  healthcheck-urls:
+    description: 'Space-separated list of URLs to check for health status'
+    required: false
+    default: 'http://localhost:1026/version' # Default to just Orion if nothing specified
+  timeout-seconds:
+    description: 'How long to wait for services before failing'
+    required: false
+    default: '120'
+
+runs:
+  using: "composite"
+  steps:
+    # Start Services
+    - name: Start FIWARE Services
+      shell: bash
+      working-directory: ${{ inputs.fiware-directory }}
+      run: |
+        echo "Starting Docker Compose..."
+        docker compose up -d
+
+    # Wait for Services
+    - name: Wait for Services to be Ready
+      shell: bash
+      run: |
+        URLs="${{ inputs.healthcheck-urls }}"
+        TIMEOUT=${{ inputs.timeout-seconds }}
+        INTERVAL=5
+        ELAPSED=0
+
+        echo "Waiting for the following services: $URLs"
+
+        # Convert space-separated string to array
+        read -ra URL_ADDR <<< "$URLs"
+
+        while [ $ELAPSED -lt $TIMEOUT ]; do
+          ALL_UP=true
+          
+          for url in "${URL_ADDR[@]}"; do
+            # -s = silent, -f = fail on HTTP error, -o /dev/null = discard output
+            if ! curl -sf -o /dev/null "$url"; then
+              echo "Waiting for $url..."
+              ALL_UP=false
+            fi
+          done
+
+          if [ "$ALL_UP" = true ]; then
+            echo "All FIWARE services are up and running!"
+            exit 0
+          fi
+
+          sleep $INTERVAL
+          ELAPSED=$((ELAPSED + INTERVAL))
+        done
+
+        echo "Timeout reached ($TIMEOUT s). Services failed to start."
+        
+        # Debug output on failure
+        cd ${{ inputs.fiware-directory }}
+        docker compose ps
+        docker compose logs --tail=50
+        exit 1

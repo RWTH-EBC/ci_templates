@@ -1,4 +1,4 @@
-name: Multi-Python Tests
+name: FIWARE test setup
 
 on:
   workflow_call:
@@ -31,76 +31,75 @@ on:
         required: false
         type: boolean
         default: false
+      FIWARE_DIRECTORY:
+        description: Directory containing the docker-compose.yml for FIWARE setup
+        required: true
+        type: string
       TEST_ENV_VARS:
         description: List of env vars, e.g. "['DEBUG=1', 'FOO=bar']"
         required: false
         type: string
         default: '[]'
+      INSTALL_FILIP:
+        description: Whether to install FiLiP for testing purposes
+        required: false
+        type: boolean
+        default: false
+      FILIP_VERSION:
+        description: Version of FiLiP to install
+        required: false
+        type: string
+        default: "0.7.3"
 
 jobs:
-  test:
+  fiware_tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: ${{ inputs.FAIL-FAST }}
       matrix:
         python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
-
     steps:
-      - name: Skip test based on commit message
-        id: skip
-        env:
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          PYTHON_VERSION="${{ matrix.python-version }}"
-          PYTHON_VERSION_NO_DOT="${PYTHON_VERSION//./}"
-          SKIP_KEYWORDS=("skip-all-tests" "skip-python$PYTHON_VERSION_NO_DOT")
-          echo "Commit message: $COMMIT_MESSAGE"
-          
-          for keyword in "${SKIP_KEYWORDS[@]}"; do
-            if [[ "$COMMIT_MESSAGE" =~ $keyword ]]; then
-              echo "Skip detected: $keyword"
-              echo "skip=true" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-          done
-          
-          echo "skip=false" >> $GITHUB_OUTPUT
-
-      - name: Cancel skipped job
-        if: steps.skip.outputs.skip == 'true'
-        run: echo "Test skipped for Python ${{ matrix.python-version }}"
-
+      # Checkout the repository so the action and docker-compose files are available
       - name: Checkout code
-        if: steps.skip.outputs.skip == 'false'
         uses: actions/checkout@v4
 
+      # Run the reusable FIWARE action
+      - name: Setup FIWARE Stack
+        uses: RWTH-EBC/ci_templates/.github/actions/fiware@main
+        with:
+          fiware-directory: ${{ inputs.FIWARE_DIRECTORY }}
+          healthcheck-urls: >-
+            http://localhost:1026/version
+            http://localhost:4041/version
+          timeout-seconds: 60
+
+      # Create environment for tests
+      - name: create env vars for tests
+        shell: bash
+        run: |
+          echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
+
+      # setup python
       - name: Set up Python ${{ matrix.python-version }}
-        if: steps.skip.outputs.skip == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
+      # install dependencies
       - name: Install project
-        if: steps.skip.outputs.skip == 'false'
         uses: RWTH-EBC/ci_templates/.github/actions/install@main
         with:
           use-uv: ${{ inputs.USE_UV }}
           install-requirements: ${{ inputs.INSTALL_REQUIREMENTS }}
           extra-requirements: ${{ inputs.EXTRA_REQUIREMENTS }}
-
       - name: Install test dependencies
-        if: steps.skip.outputs.skip == 'false'
         run: pip install pytest
+      - name: Install FiLiP (only for testing purposes)
+        if: ${{ inputs.INSTALL_FILIP }}
+        run: pip install filip~=${{ inputs.FILIP_VERSION }}
 
-      # Create environment for tests
-      - name: create env vars for tests
-        if: steps.skip.outputs.skip == 'false'
-        shell: bash
-        run: |
-          echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
-
+      # run tests
       - name: Run tests
-        if: steps.skip.outputs.skip == 'false'
         run: |
           if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
             python -m pytest ${{ inputs.TEST_PATH }}
