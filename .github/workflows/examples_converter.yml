@@ -70,17 +70,7 @@ jobs:
 
       - name: Run Converter
         run: |
-          INPUT="${{ inputs.PYTHON_PACKAGE_NAME }}"
-          if [ -n "$INPUT" ]; then
-            PATH_TO_EXAMPLE_FOLDER="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
-            echo "Using user-defined source dir: $PATH_TO_EXAMPLE_FOLDER"
-          elif [ -d "$(basename $GITHUB_REPOSITORY)" ]; then
-            INPUT=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
-            PATH_TO_EXAMPLE_FOLDER="$INPUT/${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
-            echo "Using repo name as module name: $PATH_TO_EXAMPLE_FOLDER"
-          else
-            PATH_TO_EXAMPLE_FOLDER="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
-          fi
+          PATH_TO_EXAMPLE_FOLDER="${{ inputs.EXAMPLE_CONVERTER_CONFIG }}"
           PATH_TO_CONVERTER="../${{ inputs.EXAMPLE_FILE_FOLDER }}/file_convertor_passing.py"
           python $PATH_TO_CONVERTER --config=$PATH_TO_EXAMPLE_FOLDER
 
