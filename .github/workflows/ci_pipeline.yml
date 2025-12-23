@@ -265,7 +265,6 @@ jobs:
     uses: RWTH-EBC/ci_templates/.github/workflows/examples_converter.yml@main
     with:
       CONVERT_EXAMPLES: ${{inputs.CONVERT_EXAMPLES}}
-      PYTHON_PACKAGE_NAME: ${{inputs.PYTHON_PACKAGE_NAME}}
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       GIT_REPO: ${{inputs.GIT_REPO}}
       EXAMPLE_CONVERTER_CONFIG: ${{inputs.EXAMPLE_CONVERTER_CONFIG}}
