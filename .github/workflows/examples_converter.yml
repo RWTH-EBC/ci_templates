@@ -7,10 +7,6 @@ on:
         required: false
         type: boolean
         default: false
-      PYTHON_PACKAGE_NAME:
-        required: false
-        type: string
-        default: ""
       PYTHON_VERSION:
         required: true
         type: string
