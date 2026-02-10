@@ -208,7 +208,7 @@ jobs:
 
   coverage_test:
     if: ${{inputs.EXECUTE_COVERAGE_TEST}}
-    uses: RWTH-EBC/ci_templates/.github/workflows/test-coverage.yml@22-coverage_testcoverage-is-failing
+    uses: RWTH-EBC/ci_templates/.github/workflows/test-coverage.yml@main
     with:
       PYTHON_VERSION: ${{inputs.PYTHON_VERSION}}
       USE_UV: ${{inputs.USE_UV}}
