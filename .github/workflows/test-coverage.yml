@@ -68,7 +68,7 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest setuptools
+          pip install "coverage<7.5.0" genbadge[coverage] pytest
 
       - name: Run tests with coverage
         run: |
@@ -82,7 +82,8 @@ jobs:
         run: |
           mkdir -p coverage
           coverage html -d coverage
-          coverage-badge -o coverage/badge.svg
+          coverage xml -o coverage/coverage.xml
+          genbadge coverage -i coverage/coverage.xml -o coverage/badge.svg
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
