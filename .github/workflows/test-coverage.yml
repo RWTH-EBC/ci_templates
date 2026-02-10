@@ -136,7 +136,7 @@ jobs:
         shell: bash
         run: |
           source activate $CONDA_ENV
-          pip install "coverage<7.5.0" "coverage-badge<=1.1.0" pytest
+          pip install "coverage<7.5.0" genbadge[coverage] pytest
 
       # Create environment for tests
       - name: create env vars for tests
@@ -161,7 +161,8 @@ jobs:
           source activate $CONDA_ENV
           mkdir -p coverage
           coverage html -d coverage
-          coverage-badge -o coverage/badge.svg
+          coverage xml -o coverage/coverage.xml
+          genbadge coverage -i coverage/coverage.xml -o coverage/badge.svg
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
