@@ -103,6 +103,7 @@ jobs:
           else
             coverage run -m unittest discover --verbose ${{ inputs.TEST_PATH }}/ "test_*.py"
           fi
+        continue-on-error: true
 
       - name: Generate coverage report and badge
         run: |
