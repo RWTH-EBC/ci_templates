@@ -10,7 +10,7 @@ documentation.
 ## Usage
 
 You need to create the ./.github/workflows/ folder and the ./.github/workflows/ci.yml file in your repository and import
-this workflow.
+this workflow with the following lines of code.
 
 ```yaml
 name: Python CI
@@ -57,7 +57,7 @@ jobs:
   ci:
     uses: RWTH-EBC/ci_templates/.github/workflows/ci_pipeline.yml@main
     secrets:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     with:
@@ -77,48 +77,105 @@ jobs:
 
 ## Inputs
 
+
+
 | Name                       | Type    | Default                                                                                         | Description                                                                                     |
+
 |----------------------------|---------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+
 | `PYTHON_VERSION`           | string  | `"3.10"`                                                                                        | Python version to use                                                                           |
+
 | `USE_PYLINT`               | boolean | `false`                                                                                         | Run static code analysis using `pylint`                                                         |
+
 | `USE_RUFF`                 | boolean | `false`                                                                                         | Run static code analysis using `ruff`                                                           |
+
 | `BUILD_PACKAGE`            | boolean | `false`                                                                                         | Build and verify the Python package                                                             |
+
 | `GENERATE_DOCUMENTATION`   | boolean | `false`                                                                                         | Build Sphinx documentation                                                                      |
-| `PYTHON_PACKAGE_NAME`      | string  | `""`                                                                                            | The name of your Python package ((needed when the package name is different then the repository)) |
+
+| `PYTHON_PACKAGE_NAME`      | string  | `""`                                                                                            | The name of your Python package (auto-detected from repo name if empty)                         |
+
 | `USE_UV`                   | boolean | `false`                                                                                         | Use `uv` instead of `pip` for installing dependencies                                           |
+
 | `INSTALL_REQUIREMENTS`     | boolean | `true`                                                                                          | Install from `requirements.txt` if it exists                                                    |
+
 | `EXTRA_REQUIREMENTS`       | string  | `""`                                                                                            | Extra requirements to pass to pip install (e.g. `[dev]`)                                        |
+
 | `EXECUTE_TESTS`            | boolean | `false`                                                                                         | Run unit tests                                                                                  |
+
 | `EXECUTE_COVERAGE_TEST`    | boolean | `false`                                                                                         | Run coverage tests                                                                              |
+
+| `FIWARE_TESTS`             | boolean | `false`                                                                                         | Enable FIWARE unit tests (requires `FIWARE_DIRECTORY`)                                          |
+
+| `FIWARE_COVERAGE`          | boolean | `false`                                                                                         | Enable FIWARE coverage tests (requires `FIWARE_DIRECTORY`)                                      |
+
 | `COVERAGE_TYPE`            | string  | `"default"`                                                                                     | Coverage mode: `default` or `Dymola`                                                            |
+
+| `USE_DYMOLA`               | boolean | `false`                                                                                         | Use Dymola for coverage tests (requires `dymola` runner)                                        |
+
 | `PYTHON_TEST_MATRIX`       | string  | `'["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'`                                              | List of Python versions to run tests against as a matrix (e.g. `["3.10", "3.11"]`)              |
+
 | `TEST_ENGINE`              | string  | `"PYTEST"`                                                                                      | Test runner engine (`PYTEST`, `unittest`, ...)                                                  |
+
 | `TEST_PATH`                | string  | `"tests"`                                                                                       | Path to test folder                                                                             |
-| `TEST_ENV_VARS`            | string  | `'[]'`                                                                                           | List of environment variables needed for unittests (e.g. `["VAR1=value1", "VAR2=value2"]`)     |
-| `FAIL-FAST`                | boolean | `false`                                                                                         | If true and one of the jobs in the python test matrix fails, all other jobs are cancelled       |
+
+| `TEST_ENV_VARS`            | string  | `'[]'`                                                                                           | List of environment variables for tests (e.g. `["VAR1=v1", "VAR2=v2"]`)                         |
+
+| `FAIL-FAST`                | boolean | `false`                                                                                         | If true, cancels all jobs in the test matrix if one fails                                       |
+
 | `USE_SEMANTIC_RELEASE`     | boolean | `false`                                                                                         | Use Python Semantic Release for versioning                                                      |
+
 | `DIRECTORY`                | string  | `"."`                                                                                           | Project base directory for semantic release                                                     |
+
 | `COMMIT_SUBJECT`           | string  | `"chore(release): version {version}"`                                                           | Commit message format for release                                                               |
+
 | `GH_PAGES`                 | boolean | `false`                                                                                         | Enable GitHub Pages deployment                                                                  |
+
 | `GH_PAGES_BRANCH`          | string  | `"gh-pages"`                                                                                    | Target branch for GitHub Pages deployment                                                       |
+
 | `GH_PAGES_DIR`             | string  | `"/tmp/gh-pages"`                                                                               | Temp directory for Pages workflow                                                               |
-| `DOCS_PATH`                | string  | `"docs"`                                                                                        | Path to documentation                                                                           |
+
+| `DOCS_PATH`                | string  | `"docs"`                                                                                        | Path to documentation source                                                                    |
+
 | `CREATE_PAGES_ON_FAILURE`  | boolean | `false`                                                                                         | Whether to generate pages even if previous steps failed                                         |
+
 | `CONVERT_EXAMPLES`         | boolean | `false`                                                                                         | Enable automatic example conversion into jupyter notebook                                       |
-| `GIT_REPO`                 | string  | `""`                                                                                            | Git repo to push converted files to (only used for example conversion)                          |
+
+| `GIT_REPO`                 | string  | `""`                                                                                            | Git repo to push converted files to (defaults to current repo if empty)                         |
+
 | `EXAMPLE_CONVERTER_CONFIG` | string  | `"examples/converter.toml"`                                                                     | Config file for example converter                                                               |
+
 | `COMMIT_MSG`               | string  | `"chore(examples): Automatic commit of example files in Markdown and Jupyter Notebook format."` | Commit message for example converter                                                            |
+
 | `EXAMPLE_FILE_FOLDER`      | string  | `"converter"`                                                                                   | Folder where the converter repo will be cloned                                                  |
+
 | `PYPI_RELEASE`             | boolean | `false`                                                                                         | Enable PyPI release (only triggered on main branch with "PYPI-RELEASE" in commit message)      |
+
 | `PYTHON_VERSION_NAME`      | string  | `"__version__"`                                                                                 | Name of the version attribute in your Python package                                            |
+
+| `FIWARE_DIRECTORY`         | string  | `""`                                                                                            | Directory containing `docker-compose.yml` for FIWARE setup                                      |
+
+| `INSTALL_FILIP`            | boolean | `false`                                                                                         | Whether to install FiLiP for FIWARE tests                                                       |
+
+| `FILIP_VERSION`            | string  | `"0.7.3"`                                                                                       | Version of FiLiP to install                                                                     |
+
+
 
 ## Secrets
 
+
+
 | Name             | Required | Description                                                      |
+
 |------------------|----------|------------------------------------------------------------------|
+
 | `GH_TOKEN`       | false    | GitHub personal access token (required for releases and pages)  |
+
 | `GITLAB_TOKEN`   | false    | GitLab access token (required for example conversion)           |
+
 | `PYPI_PASSWORD`  | false    | PyPI password or API token (required for PyPI releases)         |
+
+
 
 ## Included Workflows
 
