@@ -105,6 +105,11 @@ on:
         required: false
         type: string
         default: ""
+      HEALTHCHECK_URLS:
+        description: List of URLs to check for FIWARE health, e.g. "['http://localhost:1026/version', 'http://localhost:4041/version']"
+        required: false
+        type: string
+        default: `["http://localhost:1026/version","http://localhost:4041/version","http://localhost:8668/version"]`
       COMMIT_SUBJECT:
         required: false
         type: string
@@ -205,6 +210,7 @@ jobs:
       FAIL-FAST: ${{inputs.FAIL-FAST}}
       TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
       FIWARE_DIRECTORY: ${{inputs.FIWARE_DIRECTORY}}
+      HEALTHCHECK_URLS: ${{inputs.HEALTHCHECK_URLS}}
 
   coverage_test:
     if: ${{inputs.EXECUTE_COVERAGE_TEST}}
@@ -235,6 +241,7 @@ jobs:
       COVERAGE_TYPE: ${{inputs.COVERAGE_TYPE}}
       TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
       FIWARE_DIRECTORY: ${{inputs.FIWARE_DIRECTORY}}
+      HEALTHCHECK_URLS: ${{inputs.HEALTHCHECK_URLS}}
 
   ruff:
     if: ${{inputs.USE_RUFF}}
