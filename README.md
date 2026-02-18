@@ -283,7 +283,7 @@ They require additional inputs or setup in your repository.
 | Input            | Required | Default                                                                                             | Description                                                                        |
 |------------------|----------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
 | FIWARE_DIRECTORY | Yes      |                                                                                                     | Directory containing docker-compose.yml.                                           |
-| HEALTHCHECK_URLS | No       | `["http://localhost:1026/version","http://localhost:4041/version","http://localhost:8668/version"]` | List of URLs to check for FIWARE health (e.g. `["http://localhost:1026/version"]`) |
+| HEALTHCHECK_URLS | No       | `"http://localhost:1026/version http://localhost:4041/version http://localhost:8668/version"`        | Space-separated list of URLs to check for FIWARE health (e.g. `"http://localhost:1026/version"`) |
 
 - An example usage is provided in the [`.github/workflows/fiware_test_example.yml`](.github/workflows/fiware_test_example.yml) file.
 
@@ -296,4 +296,4 @@ They require additional inputs or setup in your repository.
 | Input            | Required | Default                                                                                             | Description                                                                        |
 |------------------|----------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
 | FIWARE_DIRECTORY | Yes      |                                                                                                     | Directory containing docker-compose.yml.                                           |
-| HEALTHCHECK_URLS | No       | `["http://localhost:1026/version","http://localhost:4041/version","http://localhost:8668/version"]` | List of URLs to check for FIWARE health (e.g. `["http://localhost:1026/version"]`) |
+| HEALTHCHECK_URLS | No       | `"http://localhost:1026/version http://localhost:4041/version http://localhost:8668/version"`        | Space-separated list of URLs to check for FIWARE health (e.g. `"http://localhost:1026/version"`) |

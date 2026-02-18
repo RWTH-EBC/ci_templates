@@ -55,16 +55,11 @@ on:
         type: string
         default: "0.7.3"
       HEALTHCHECK_URLS:
-        description: List of URLs to check for FIWARE health, e.g. "['http://localhost:1026/version', 'http://localhost:4041/version']"
+        description: Space-separated list of URLs to check for FIWARE health (e.g. "http://localhost:1026/version http://localhost:4041/version")
         required: false
         type: string
         default: >-
-          [
-            "http://localhost:1026/version",
-            "http://localhost:4041/version",
-            "http://localhost:8668/version"
-          ]
-
+          http://localhost:1026/version http://localhost:4041/version http://localhost:8668/version
 jobs:
   fiware_coverage:
     runs-on: ubuntu-latest
@@ -125,4 +120,3 @@ jobs:
           name: coverage
           path: coverage
           retention-days: 1
-
