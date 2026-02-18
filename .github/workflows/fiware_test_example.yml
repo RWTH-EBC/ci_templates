@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/actions/fiware/**'
       - '.github/workflows/fiware_test_example.yml'
+      - '.github/workflows/fiware_test.yml'
       - 'utils/fiware/**'
 
 jobs:
