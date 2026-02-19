@@ -59,7 +59,7 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      PYPI_PASSWORD: ${{ secrets.PYPI_TOKEN }}
     with:
       PYTHON_VERSION: "3.13"
       USE_PYLINT: true
