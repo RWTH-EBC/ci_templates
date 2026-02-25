@@ -45,8 +45,12 @@ runs:
           for url in "${URL_ADDR[@]}"; do
             # Print the HTTP status and body for each health check
             echo "" > /tmp/healthcheck_body
-            STATUS=$(curl -s -o /tmp/healthcheck_body -w "%{http_code}" "$url" || echo "000")
+            STATUS=$(curl -s -o /tmp/healthcheck_body -w "%{http_code}" "$url")
+            CURL_EXIT=$?
             BODY=$(cat /tmp/healthcheck_body)
+            if [ $CURL_EXIT -ne 0 ]; then
+              STATUS="000"
+            fi
             if [ "$STATUS" = "000" ] || [ "$STATUS" -ge 500 ]; then
               echo "Waiting for $url : Status $STATUS"
               echo "  Body: $BODY"
