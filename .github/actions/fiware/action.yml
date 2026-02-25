@@ -43,9 +43,10 @@ runs:
           ALL_UP=true
           
           for url in "${URL_ADDR[@]}"; do
-            # -s = silent, -f = fail on HTTP error, -o /dev/null = discard output
-            if ! curl -sf -o /dev/null "$url"; then
-              echo "Waiting for $url..."
+            # Akzeptiere alle HTTP-Statuscodes <500 als erreichbar
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+            if [ $? -ne 0 ] || [ "$STATUS" -ge 500 ]; then
+              echo "Waiting for $url... (Status: $STATUS)"
               ALL_UP=false
             fi
           done

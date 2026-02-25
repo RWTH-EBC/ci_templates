@@ -71,7 +71,7 @@ jobs:
 
       # Run the reusable FIWARE action
       - name: Setup FIWARE Stack
-        uses: RWTH-EBC/ci_templates/.github/actions/fiware@main
+        uses: RWTH-EBC/ci_templates/.github/actions/fiware@29-fiware-testcoverage-allow-healthcheck-urls-being-specified-as-input
         with:
           fiware-directory: ${{ inputs.FIWARE_DIRECTORY }}
           healthcheck-urls: ${{ inputs.HEALTHCHECK_URLS }}
