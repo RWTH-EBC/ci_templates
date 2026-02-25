@@ -109,7 +109,7 @@ on:
         description: Space-separated list of URLs to check for FIWARE health (e.g. "http://localhost:1026/version http://localhost:4041/version")
         required: false
         type: string
-        default: http://localhost:1026/version http://localhost:4041/version http://localhost:8668/version
+        default: "http://localhost:1026/version http://localhost:4041/version http://localhost:8668/version"
       COMMIT_SUBJECT:
         required: false
         type: string
