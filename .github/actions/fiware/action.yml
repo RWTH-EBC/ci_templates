@@ -43,11 +43,17 @@ runs:
           ALL_UP=true
           
           for url in "${URL_ADDR[@]}"; do
-            # Akzeptiere alle HTTP-Statuscodes <500 als erreichbar
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-            if [ $? -ne 0 ] || [ "$STATUS" -ge 500 ]; then
-              echo "Waiting for $url... (Status: $STATUS)"
+            # Print the HTTP status and body for each health check
+            echo "" > /tmp/healthcheck_body
+            STATUS=$(curl -s -o /tmp/healthcheck_body -w "%{http_code}" "$url" || echo "000")
+            BODY=$(cat /tmp/healthcheck_body)
+            if [ "$STATUS" = "000" ] || [ "$STATUS" -ge 500 ]; then
+              echo "Waiting for $url : Status $STATUS"
+              echo "  Body: $BODY"
               ALL_UP=false
+            else
+              echo "Healthcheck for $url: Status $STATUS"
+              echo "  Body: $BODY"
             fi
           done
 
