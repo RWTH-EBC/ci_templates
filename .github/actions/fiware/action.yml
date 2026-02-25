@@ -43,7 +43,6 @@ runs:
           ALL_UP=true
           
           for url in "${URL_ADDR[@]}"; do
-            # -s = silent, -f = fail on HTTP error, -o /dev/null = discard output
             if ! curl -sf -o /dev/null "$url"; then
               echo "Waiting for $url..."
               ALL_UP=false
@@ -52,6 +51,7 @@ runs:
 
           if [ "$ALL_UP" = true ]; then
             echo "All FIWARE services are up and running!"
+            docker ps
             exit 0
           fi
 
@@ -64,5 +64,5 @@ runs:
         # Debug output on failure
         cd ${{ inputs.fiware-directory }}
         docker compose ps
-        docker compose logs --tail=50
+        docker compose logs
         exit 1
