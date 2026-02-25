@@ -43,26 +43,15 @@ runs:
           ALL_UP=true
           
           for url in "${URL_ADDR[@]}"; do
-            # Print the HTTP status and body for each health check
-            echo "" > /tmp/healthcheck_body
-            STATUS=$(curl -s -o /tmp/healthcheck_body -w "%{http_code}" "$url")
-            CURL_EXIT=$?
-            BODY=$(cat /tmp/healthcheck_body)
-            if [ $CURL_EXIT -ne 0 ]; then
-              STATUS="000"
-            fi
-            if [ "$STATUS" = "000" ] || [ "$STATUS" -ge 500 ]; then
-              echo "Waiting for $url : Status $STATUS"
-              echo "  Body: $BODY"
+            if ! curl -sf -o /dev/null "$url"; then
+              echo "Waiting for $url..."
               ALL_UP=false
-            else
-              echo "Healthcheck for $url: Status $STATUS"
-              echo "  Body: $BODY"
             fi
           done
 
           if [ "$ALL_UP" = true ]; then
             echo "All FIWARE services are up and running!"
+            docker ps
             exit 0
           fi
 
@@ -75,5 +64,5 @@ runs:
         # Debug output on failure
         cd ${{ inputs.fiware-directory }}
         docker compose ps
-        docker compose logs --tail=50
+        docker compose logs
         exit 1
