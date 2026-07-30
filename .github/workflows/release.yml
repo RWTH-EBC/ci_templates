@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install --upgrade twine build packaging
+          pip install "twine<7.0.0" build
 
       - name: Install GitHub CLI
         run: |
