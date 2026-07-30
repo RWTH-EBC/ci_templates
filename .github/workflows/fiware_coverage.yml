@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup FIWARE Stack
         uses: RWTH-EBC/ci_templates/.github/actions/fiware@main
@@ -80,7 +80,7 @@ jobs:
           echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 

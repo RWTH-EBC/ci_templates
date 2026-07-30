@@ -40,7 +40,7 @@ jobs:
           git config --global user.name "${{ github.actor }}"
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
@@ -76,7 +76,7 @@ jobs:
             mkdir -p $GH_PAGES_DIR/docs/${GITHUB_REF_NAME}
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: "./artifacts/"
 

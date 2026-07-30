@@ -67,7 +67,7 @@ jobs:
     steps:
       # Checkout the repository so the action and docker-compose files are available
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Run the reusable FIWARE action
       - name: Setup FIWARE Stack
@@ -85,7 +85,7 @@ jobs:
 
       # setup python
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
