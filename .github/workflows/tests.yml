@@ -27,6 +27,10 @@ on:
         required: false
         type: string
         default: ""
+      USE_DYMOLA:
+        required: false
+        type: boolean
+        default: false
       FAIL-FAST:
         required: false
         type: boolean
@@ -39,6 +43,7 @@ on:
 
 jobs:
   test:
+    if: ${{ !inputs.USE_DYMOLA }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: ${{ inputs.FAIL-FAST }}
@@ -102,6 +107,105 @@ jobs:
       - name: Run tests
         if: steps.skip.outputs.skip == 'false'
         run: |
+          if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
+            python -m pytest ${{ inputs.TEST_PATH }}
+          else
+            python -m unittest discover --verbose . "test_*.py"
+          fi
+
+  dymola_test:
+    if: ${{ inputs.USE_DYMOLA }}
+    runs-on: [ dymola ]
+    container:
+      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+      options:
+        --user root
+      env:
+        DISPLAY: ":77.0"
+    strategy:
+      fail-fast: ${{ inputs.FAIL-FAST }}
+      matrix:
+        python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
+
+    steps:
+      - name: Skip test based on commit message
+        id: skip
+        shell: bash
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          PYTHON_VERSION="${{ matrix.python-version }}"
+          PYTHON_VERSION_NO_DOT="${PYTHON_VERSION//./}"
+          SKIP_KEYWORDS=("skip-all-tests" "skip-python$PYTHON_VERSION_NO_DOT")
+          echo "Commit message: $COMMIT_MESSAGE"
+
+          for keyword in "${SKIP_KEYWORDS[@]}"; do
+            if [[ "$COMMIT_MESSAGE" =~ $keyword ]]; then
+              echo "Skip detected: $keyword"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Cancel skipped job
+        if: steps.skip.outputs.skip == 'true'
+        shell: bash
+        run: echo "Test skipped for Python ${{ matrix.python-version }}"
+
+      - name: Checkout code
+        if: steps.skip.outputs.skip == 'false'
+        uses: actions/checkout@v7
+
+      - name: Start Xvfb and set up Conda
+        if: steps.skip.outputs.skip == 'false'
+        shell: bash
+        run: |
+          Xvfb :77 -extension RANDR -extension GLX &
+          export DISPLAY=:77.0
+          PY_VER=$(echo "${{ matrix.python-version }}" | grep -oE '[0-9]+\.[0-9]+')
+          conda create -n pyCITest python=$PY_VER -y
+          echo "CONDA_ENV=pyCITest" >> $GITHUB_ENV
+
+      - name: Install project
+        if: steps.skip.outputs.skip == 'false'
+        shell: bash
+        run: |
+          source activate $CONDA_ENV
+          pip install --upgrade pip
+          if [[ "${{ inputs.USE_UV }}" == "true" ]]; then
+            pip install uv
+            export INSTALL_CMD="uv pip install --system"
+          else
+            export INSTALL_CMD="pip install"
+          fi
+          if [[ "${{ inputs.INSTALL_REQUIREMENTS }}" == "true" ]] && [ -f requirements.txt ]; then
+            $INSTALL_CMD -r requirements.txt
+          fi
+          if [ -f setup.py ] || [ -f pyproject.toml ]; then
+            $INSTALL_CMD -e .${{ inputs.EXTRA_REQUIREMENTS }}
+          fi
+
+      - name: Install test dependencies
+        if: steps.skip.outputs.skip == 'false'
+        shell: bash
+        run: |
+          source activate $CONDA_ENV
+          pip install pytest
+
+      - name: Create env vars for tests
+        if: steps.skip.outputs.skip == 'false' && inputs.TEST_ENV_VARS != '[]'
+        shell: bash
+        run: |
+          source activate $CONDA_ENV
+          python -c 'import json, os, sys; [open(os.environ["GITHUB_ENV"], "a").write(f"{v}\n") for v in json.loads(sys.argv[1])]' '${{ inputs.TEST_ENV_VARS }}'
+
+      - name: Run tests
+        if: steps.skip.outputs.skip == 'false'
+        shell: bash
+        run: |
+          source activate $CONDA_ENV
           if [[ "${{ inputs.TEST_ENGINE }}" == "PYTEST" ]]; then
             python -m pytest ${{ inputs.TEST_PATH }}
           else

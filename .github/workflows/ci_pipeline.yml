@@ -194,6 +194,7 @@ jobs:
       EXTRA_REQUIREMENTS: ${{inputs.EXTRA_REQUIREMENTS}}
       TEST_ENGINE: ${{inputs.TEST_ENGINE}}
       TEST_PATH: ${{inputs.TEST_PATH}}
+      USE_DYMOLA: ${{ inputs.USE_DYMOLA }}
       FAIL-FAST: ${{inputs.FAIL-FAST}}
       TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
 
