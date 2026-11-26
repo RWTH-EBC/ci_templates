@@ -91,6 +91,16 @@ on:
         required: false
         type: boolean
         default: false
+      DYMOLA_IMAGE:
+        description: Dymola image incl. tag for USE_DYMOLA (default - vars.DYMOLA_IMAGE_MINICONDA, then the GitLab image)
+        required: false
+        type: string
+        default: ""
+      DYMOLA_PYTHON_TEST_MATRIX:
+        description: Python versions for the Dymola tests, e.g. '["3.11"]' (default - PYTHON_TEST_MATRIX)
+        required: false
+        type: string
+        default: ""
       FAIL-FAST:
         required: false
         type: boolean
@@ -160,6 +170,9 @@ on:
     secrets:
       GH_TOKEN:
         required: false
+      DYMOLA_REGISTRY_TOKEN:
+        description: Token for the registry of the Dymola image (user - vars.DYMOLA_REGISTRY_USER), required for USE_DYMOLA
+        required: false
       GITLAB_TOKEN:
         required: false
 
@@ -195,8 +208,12 @@ jobs:
       TEST_ENGINE: ${{inputs.TEST_ENGINE}}
       TEST_PATH: ${{inputs.TEST_PATH}}
       USE_DYMOLA: ${{ inputs.USE_DYMOLA }}
+      DYMOLA_IMAGE: ${{ inputs.DYMOLA_IMAGE }}
+      DYMOLA_PYTHON_TEST_MATRIX: ${{ inputs.DYMOLA_PYTHON_TEST_MATRIX }}
       FAIL-FAST: ${{inputs.FAIL-FAST}}
       TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
+    secrets:
+      DYMOLA_REGISTRY_TOKEN: ${{ secrets.DYMOLA_REGISTRY_TOKEN }}
 
   fiware_tests:
     if: ${{inputs.FIWARE_TESTS}}
@@ -226,7 +243,10 @@ jobs:
       TEST_PATH: ${{inputs.TEST_PATH}}
       COVERAGE_TYPE: ${{inputs.COVERAGE_TYPE}}
       USE_DYMOLA: ${{ inputs.USE_DYMOLA }}
+      DYMOLA_IMAGE: ${{ inputs.DYMOLA_IMAGE }}
       TEST_ENV_VARS: ${{inputs.TEST_ENV_VARS}}
+    secrets:
+      DYMOLA_REGISTRY_TOKEN: ${{ secrets.DYMOLA_REGISTRY_TOKEN }}
 
   fiware_coverage:
     if: ${{inputs.FIWARE_COVERAGE}}

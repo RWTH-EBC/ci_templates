@@ -94,6 +94,8 @@ jobs:
 | `FIWARE_COVERAGE`          | boolean | `false`                                                                                         | Enable FIWARE coverage tests (requires `FIWARE_DIRECTORY`)                                      |
 | `COVERAGE_TYPE`            | string  | `"default"`                                                                                     | Coverage mode: `default` or `Dymola`                                                            |
 | `USE_DYMOLA`               | boolean | `false`                                                                                         | Use Dymola for tests and coverage tests (requires `dymola` runner)                              |
+| `DYMOLA_IMAGE`             | string  | `""`                                                                                            | Dymola image for `USE_DYMOLA` (empty: variable `DYMOLA_IMAGE_MINICONDA`, then the default image) |
+| `DYMOLA_PYTHON_TEST_MATRIX`| string  | `""`                                                                                            | Python versions for the Dymola tests, e.g. `'["3.11"]'` (empty: `PYTHON_TEST_MATRIX`)           |
 | `PYTHON_TEST_MATRIX`       | string  | `'["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'`                                              | List of Python versions to run tests against as a matrix (e.g. `["3.10", "3.11"]`)              |
 | `TEST_ENGINE`              | string  | `"PYTEST"`                                                                                      | Test runner engine (`PYTEST`, `unittest`, ...)                                                  |
 | `TEST_PATH`                | string  | `"tests"`                                                                                       | Path to test folder                                                                             |
@@ -125,6 +127,30 @@ jobs:
 | `GH_TOKEN`       | false    | GitHub personal access token (required for releases and pages)  |
 | `GITLAB_TOKEN`   | false    | GitLab access token (required for example conversion)           |
 | `PYPI_PASSWORD`  | false    | PyPI password or API token (required for PyPI releases)         |
+| `DYMOLA_REGISTRY_TOKEN` | false | Token for the registry of the Dymola image (required for `USE_DYMOLA`) |
+
+### Dymola tests (`USE_DYMOLA`)
+
+Tests and coverage tests then run on the self-hosted `dymola` runner (RWTH network, Dymola license server)
+in the Dymola image. The image is pulled with:
+
+- organization or repository variable `DYMOLA_REGISTRY_USER` (registry user, e.g. a GitLab deploy token name)
+- secret `DYMOLA_REGISTRY_TOKEN`, which the calling workflow must pass on:
+
+```yaml
+jobs:
+  ci:
+    uses: RWTH-EBC/ci_templates/.github/workflows/ci_pipeline.yml@main
+    secrets:
+      DYMOLA_REGISTRY_TOKEN: ${{ secrets.DYMOLA_REGISTRY_TOKEN }}   # or: secrets: inherit
+    with:
+      USE_DYMOLA: true
+      EXECUTE_TESTS: true
+      DYMOLA_PYTHON_TEST_MATRIX: '["3.11"]'
+```
+
+GitHub does not accept empty registry credentials, so both settings must be available to the repository.
+The image can be changed centrally with the variable `DYMOLA_IMAGE_MINICONDA` or per repository with the input `DYMOLA_IMAGE`.
 
 
 

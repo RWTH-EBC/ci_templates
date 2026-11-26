@@ -35,11 +35,25 @@ on:
         required: false
         type: boolean
         default: false
+      DYMOLA_IMAGE:
+        description: Dymola image incl. tag for USE_DYMOLA (default - vars.DYMOLA_IMAGE_MINICONDA, then the GitLab image)
+        required: false
+        type: string
+        default: ""
+      DYMOLA_PYTHON_TEST_MATRIX:
+        description: Python versions for USE_DYMOLA, e.g. '["3.11"]' (default - PYTHON_TEST_MATRIX)
+        required: false
+        type: string
+        default: ""
       TEST_ENV_VARS:
         description: List of env vars, e.g. "['DEBUG=1', 'FOO=bar']"
         required: false
         type: string
         default: '[]'
+    secrets:
+      DYMOLA_REGISTRY_TOKEN:
+        description: Token for the registry of the Dymola image (user - vars.DYMOLA_REGISTRY_USER), required for USE_DYMOLA
+        required: false
 
 jobs:
   test:
@@ -117,7 +131,10 @@ jobs:
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [ dymola ]
     container:
-      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+      image: ${{ inputs.DYMOLA_IMAGE || vars.DYMOLA_IMAGE_MINICONDA || 'registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda' }}
+      credentials:
+        username: ${{ vars.DYMOLA_REGISTRY_USER }}
+        password: ${{ secrets.DYMOLA_REGISTRY_TOKEN }}
       options:
         --user root
       env:
@@ -125,7 +142,7 @@ jobs:
     strategy:
       fail-fast: ${{ inputs.FAIL-FAST }}
       matrix:
-        python-version: ${{ fromJson(inputs.PYTHON_TEST_MATRIX) }}
+        python-version: ${{ fromJson(inputs.DYMOLA_PYTHON_TEST_MATRIX || inputs.PYTHON_TEST_MATRIX) }}
 
     steps:
       - name: Skip test based on commit message
