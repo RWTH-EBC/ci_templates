@@ -39,11 +39,20 @@ on:
         required: false
         type: boolean
         default: false
+      DYMOLA_IMAGE:
+        description: Dymola image incl. tag for USE_DYMOLA (default - vars.DYMOLA_IMAGE_MINICONDA, then the GitLab image)
+        required: false
+        type: string
+        default: ""
       TEST_ENV_VARS:
         description: List of env vars, e.g. "['DEBUG=1', 'FOO=bar']"
         required: false
         type: string
         default: '[]'
+    secrets:
+      DYMOLA_REGISTRY_TOKEN:
+        description: Token for the registry of the Dymola image (user - vars.DYMOLA_REGISTRY_USER), required for USE_DYMOLA
+        required: false
 
 jobs:
   coverage:
@@ -97,14 +106,17 @@ jobs:
     if: ${{ inputs.USE_DYMOLA }}
     runs-on: [ dymola ]
     container:
-      image: registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda
+      image: ${{ inputs.DYMOLA_IMAGE || vars.DYMOLA_IMAGE_MINICONDA || 'registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola2024xRefresh1-miniconda' }}
+      credentials:
+        username: ${{ vars.DYMOLA_REGISTRY_USER }}
+        password: ${{ secrets.DYMOLA_REGISTRY_TOKEN }}
       options:
         --user root
       env:
         DISPLAY: ":77.0"
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Start Xvfb and set up Conda
         shell: bash
@@ -139,12 +151,13 @@ jobs:
           source activate $CONDA_ENV
           pip install "coverage<7.5.0" genbadge[coverage] pytest
 
-      # Create environment for tests
-      - name: create env vars for tests
-        if: steps.skip.outputs.skip == 'false'
+      # Create environment for tests (this job has no skip step, see dymola_test in tests.yml)
+      - name: Create env vars for tests
+        if: inputs.TEST_ENV_VARS != '[]'
         shell: bash
         run: |
-          echo '${{ inputs.TEST_ENV_VARS }}' | jq -r '.[]' >> $GITHUB_ENV
+          source activate $CONDA_ENV
+          python -c 'import json, os, sys; [open(os.environ["GITHUB_ENV"], "a").write(f"{v}\n") for v in json.loads(sys.argv[1])]' '${{ inputs.TEST_ENV_VARS }}'
 
       - name: Run tests with coverage
         shell: bash
